@@ -4,9 +4,9 @@ import react from '@vitejs/plugin-react'
 export default defineConfig({
   plugins: [react()],
   root: 'src', // 修正root路径，因为源代码直接在src目录下
-  base: '/new-statistical-webapp/', // GitHub Pages需要的基础路径，与仓库名匹配
+  base: '/FinalVersion/', // GitHub Pages需要的基础路径，与仓库名匹配
   build: {
-    outDir: '../../dist/client',
+    outDir: '../docs',
     emptyOutDir: true
   },
   server: {
