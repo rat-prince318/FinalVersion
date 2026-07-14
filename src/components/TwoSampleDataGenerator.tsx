@@ -1,5 +1,6 @@
 import { useState } from 'react';
-import { Box, FormControl, FormLabel, Input, Select, Button, Grid, Text, Card, CardBody } from '@chakra-ui/react';
+import { Box, FormControl, FormLabel, Input, Select, Button, Grid, Text, Card, CardBody, Alert, AlertIcon } from '@chakra-ui/react';
+import { useTranslation } from 'react-i18next';
 import { generateNormalData, generateUniformData, generateBinomialData } from '../utils/dataGenerators';
 
 interface TwoSampleDataGeneratorProps {
@@ -7,6 +8,8 @@ interface TwoSampleDataGeneratorProps {
 }
 
 function TwoSampleDataGenerator({ onDataGenerated }: TwoSampleDataGeneratorProps) {
+  const { t } = useTranslation();
+  const [error, setError] = useState<string | null>(null);
   // Sample 1 Parameters
   const [sample1Size, setSample1Size] = useState<string>('50');
   const [sample1Distribution, setSample1Distribution] = useState<string>('normal');
@@ -42,6 +45,7 @@ function TwoSampleDataGenerator({ onDataGenerated }: TwoSampleDataGeneratorProps
 
   const handleGenerate = () => {
     try {
+      setError(null);
       // Generate sample 1
       const params1 = {
         mean: parseFloat(sample1Mean),
@@ -74,8 +78,8 @@ function TwoSampleDataGenerator({ onDataGenerated }: TwoSampleDataGeneratorProps
 
       onDataGenerated({ sample1, sample2, params1, params2 });
       
-    } catch (error) {
-      alert(error instanceof Error ? error.message : 'An error occurred during data generation');
+    } catch (err) {
+      setError(err instanceof Error ? err.message : t('dataGenerator.errorDuringGeneration'));
     }
   };
 
@@ -113,7 +117,7 @@ function TwoSampleDataGenerator({ onDataGenerated }: TwoSampleDataGeneratorProps
         return (
           <Grid gap={4}>
             <FormControl>
-              <FormLabel fontSize="sm">Mean (μ)</FormLabel>
+              <FormLabel fontSize="sm">{t('dataGenerator.mean')}</FormLabel>
               <Input
                 type="number"
                 value={values.mean}
@@ -122,7 +126,7 @@ function TwoSampleDataGenerator({ onDataGenerated }: TwoSampleDataGeneratorProps
               />
             </FormControl>
             <FormControl>
-              <FormLabel fontSize="sm">Standard Deviation (σ)</FormLabel>
+              <FormLabel fontSize="sm">{t('dataGenerator.standardDeviation')}</FormLabel>
               <Input
                 type="number"
                 value={values.stdDev}
@@ -137,7 +141,7 @@ function TwoSampleDataGenerator({ onDataGenerated }: TwoSampleDataGeneratorProps
         return (
           <Grid gap={4}>
             <FormControl>
-              <FormLabel fontSize="sm">Minimum Value (a)</FormLabel>
+              <FormLabel fontSize="sm">{t('dataGenerator.minimumValue')}</FormLabel>
               <Input
                 type="number"
                 value={values.min}
@@ -146,7 +150,7 @@ function TwoSampleDataGenerator({ onDataGenerated }: TwoSampleDataGeneratorProps
               />
             </FormControl>
             <FormControl>
-              <FormLabel fontSize="sm">Maximum Value (b)</FormLabel>
+              <FormLabel fontSize="sm">{t('dataGenerator.maximumValue')}</FormLabel>
               <Input
                 type="number"
                 value={values.max}
@@ -159,7 +163,7 @@ function TwoSampleDataGenerator({ onDataGenerated }: TwoSampleDataGeneratorProps
       case 'binomial':
         return (
           <FormControl>
-            <FormLabel fontSize="sm">Success Probability (p)</FormLabel>
+            <FormLabel fontSize="sm">{t('dataGenerator.successProbability')}</FormLabel>
             <Input
               type="number"
               value={values.probability}
@@ -177,13 +181,20 @@ function TwoSampleDataGenerator({ onDataGenerated }: TwoSampleDataGeneratorProps
 
   return (
     <Box>
+      {error && (
+        <Alert status="error" mb={6}>
+          <AlertIcon />
+          {error}
+        </Alert>
+      )}
+      
       <Grid templateColumns={{ base: '1fr', md: 'repeat(2, 1fr)' }} gap={6} mb={6}>
         <Card>
           <CardBody>
-            <Text fontSize="sm" fontWeight="medium" color="gray.700" mb={3}>Sample 1</Text>
+            <Text fontSize="sm" fontWeight="medium" color="gray.700" mb={3}>{t('dataGenerator.sample1')}</Text>
             <Grid gap={4}>
               <FormControl>
-                <FormLabel fontSize="sm">Sample Size</FormLabel>
+                <FormLabel fontSize="sm">{t('dataGenerator.sampleSize')}</FormLabel>
                 <Input
                   type="number"
                   value={sample1Size}
@@ -193,14 +204,14 @@ function TwoSampleDataGenerator({ onDataGenerated }: TwoSampleDataGeneratorProps
                 />
               </FormControl>
               <FormControl>
-                <FormLabel fontSize="sm">Distribution Type</FormLabel>
+                <FormLabel fontSize="sm">{t('dataGenerator.distributionType')}</FormLabel>
                 <Select
                   value={sample1Distribution}
                   onChange={(e) => setSample1Distribution(e.target.value)}
                 >
-                  <option value="normal">Normal Distribution</option>
-                  <option value="uniform">Uniform Distribution</option>
-                  <option value="binomial">Binomial Distribution</option>
+                  <option value="normal">{t('dataGenerator.normalDistribution')}</option>
+                  <option value="uniform">{t('dataGenerator.uniformDistribution')}</option>
+                  <option value="binomial">{t('dataGenerator.binomialDistribution')}</option>
                 </Select>
               </FormControl>
               {renderDistributionParams(sample1Distribution, 1)}
@@ -210,10 +221,10 @@ function TwoSampleDataGenerator({ onDataGenerated }: TwoSampleDataGeneratorProps
         
         <Card>
           <CardBody>
-            <Text fontSize="sm" fontWeight="medium" color="gray.700" mb={3}>Sample 2</Text>
+            <Text fontSize="sm" fontWeight="medium" color="gray.700" mb={3}>{t('dataGenerator.sample2')}</Text>
             <Grid gap={4}>
               <FormControl>
-                <FormLabel fontSize="sm">Sample Size</FormLabel>
+                <FormLabel fontSize="sm">{t('dataGenerator.sampleSize')}</FormLabel>
               <Input
                 type="number"
                 value={sample2Size}
@@ -223,14 +234,14 @@ function TwoSampleDataGenerator({ onDataGenerated }: TwoSampleDataGeneratorProps
               />
             </FormControl>
             <FormControl>
-              <FormLabel fontSize="sm">Distribution Type</FormLabel>
+              <FormLabel fontSize="sm">{t('dataGenerator.distributionType')}</FormLabel>
               <Select
                 value={sample2Distribution}
                 onChange={(e) => setSample2Distribution(e.target.value)}
               >
-                <option value="normal">Normal Distribution</option>
-                <option value="uniform">Uniform Distribution</option>
-                <option value="binomial">Binomial Distribution</option>
+                <option value="normal">{t('dataGenerator.normalDistribution')}</option>
+                <option value="uniform">{t('dataGenerator.uniformDistribution')}</option>
+                <option value="binomial">{t('dataGenerator.binomialDistribution')}</option>
               </Select>
               </FormControl>
               {renderDistributionParams(sample2Distribution, 2)}
@@ -240,7 +251,7 @@ function TwoSampleDataGenerator({ onDataGenerated }: TwoSampleDataGeneratorProps
       </Grid>
       
       <Button onClick={handleGenerate} colorScheme="green" width="100%">
-        Generate Two Samples
+        {t('dataGenerator.generateTwoSamples')}
       </Button>
     </Box>
   );

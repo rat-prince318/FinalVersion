@@ -1,64 +1,65 @@
 import React, { useState, useEffect } from 'react';
 import { Button, Box, Text, Select, VStack, Grid, GridItem, Alert, AlertIcon, AlertDescription, Input } from '@chakra-ui/react';
+import { useTranslation } from 'react-i18next';
 import { DistributionConfig, DistributionGeneratorProps } from '../types';
 
 const DistributionGenerator: React.FC<DistributionGeneratorProps> = ({ onDataChange }) => {
+  const { t } = useTranslation();
+  
   const [sampleSize, setSampleSize] = useState<string>('');
   const [selectedDistribution, setSelectedDistribution] = useState<string>('normal');
   const [params, setParams] = useState<Record<string, number | undefined>>({});
   const [errorMessage, setErrorMessage] = useState<string>('');
 
-  // Define configurations for various distributions
   const distributionConfigs: Record<string, DistributionConfig> = {
     normal: {
-      name: 'Normal Distribution',
+      name: t('distribution.normal'),
       params: [
-        { name: 'mean', label: 'Mean (μ)', min: -100, max: 100, step: 0.1, defaultValue: 0 },
-        { name: 'std', label: 'Standard Deviation (σ)', min: -100, max: 100, step: 0.1, defaultValue: 0 },
+        { name: 'mean', label: t('distribution.paramMean'), min: -100, max: 100, step: 0.1, defaultValue: 0 },
+        { name: 'std', label: t('distribution.paramStd'), min: -100, max: 100, step: 0.1, defaultValue: 0 },
       ],
       formula: 'f(x) = (1/(σ√(2π))) * e^(-(x-μ)²/(2σ²))',
     },
     uniform: {
-      name: 'Uniform Distribution',
+      name: t('distribution.uniform'),
       params: [
-        { name: 'a', label: 'Minimum Value (a)', min: -100, max: 100, step: 0.1, defaultValue: 0 },
-        { name: 'b', label: 'Maximum Value (b)', min: -100, max: 100, step: 0.1, defaultValue: 1 },
+        { name: 'a', label: t('distribution.paramMin'), min: -100, max: 100, step: 0.1, defaultValue: 0 },
+        { name: 'b', label: t('distribution.paramMax'), min: -100, max: 100, step: 0.1, defaultValue: 1 },
       ],
       formula: 'f(x) = 1/(b-a) for a ≤ x ≤ b',
     },
     binomial: {
-      name: 'Binomial Distribution',
+      name: t('distribution.binomial'),
       params: [
-        { name: 'n', label: 'Number of Trials (n)', min: 1, max: 100, step: 1, defaultValue: 10 },
-        { name: 'p', label: 'Success Probability (p)', min: 0.1, max: 0.9, step: 0.01, defaultValue: 0.5 },
+        { name: 'n', label: t('distribution.paramTrials'), min: 1, max: 100, step: 1, defaultValue: 10 },
+        { name: 'p', label: t('distribution.paramProbability'), min: 0.1, max: 0.9, step: 0.01, defaultValue: 0.5 },
       ],
       formula: 'P(k) = C(n,k) * p^k * (1-p)^(n-k)',
     },
     poisson: {
-      name: 'Poisson Distribution',
+      name: t('distribution.poisson'),
       params: [
-        { name: 'lambda', label: 'λ Parameter', min: 0.1, max: 20, step: 0.1, defaultValue: 5 },
+        { name: 'lambda', label: t('distribution.paramLambda'), min: 0.1, max: 20, step: 0.1, defaultValue: 5 },
       ],
       formula: 'P(k) = (e^(-λ) * λ^k) / k!',
     },
     exponential: {
-      name: 'Exponential Distribution',
+      name: t('distribution.exponential'),
       params: [
-        { name: 'lambda', label: 'λ Parameter', min: 0.1, max: 5, step: 0.1, defaultValue: 1 },
+        { name: 'lambda', label: t('distribution.paramLambda'), min: 0.1, max: 5, step: 0.1, defaultValue: 1 },
       ],
       formula: 'f(x) = λ * e^(-λx) for x ≥ 0',
     },
     gamma: {
-      name: 'Gamma Distribution',
+      name: t('distribution.gamma'),
       params: [
-        { name: 'shape', label: 'Shape Parameter (k)', min: 0.1, max: 10, step: 0.1, defaultValue: 2 },
-        { name: 'scale', label: 'Scale Parameter (θ)', min: 0.1, max: 5, step: 0.1, defaultValue: 1 },
+        { name: 'shape', label: t('distribution.paramShape'), min: 0.1, max: 10, step: 0.1, defaultValue: 2 },
+        { name: 'scale', label: t('distribution.paramScale'), min: 0.1, max: 5, step: 0.1, defaultValue: 1 },
       ],
       formula: 'f(x) = (x^(k-1) * e^(-x/θ)) / (θ^k * Γ(k)) for x > 0',
     },
   };
 
-  // Initialize parameters
   useEffect(() => {
     const config = distributionConfigs[selectedDistribution];
     const initialParams: Record<string, number> = {};
@@ -75,7 +76,6 @@ const DistributionGenerator: React.FC<DistributionGeneratorProps> = ({ onDataCha
     }));
   };
 
-  // Helper function to generate normal random values using Box-Muller transform
   const getNormalRandom = (mean: number = 0, std: number = 1): number => {
     const u1 = Math.random();
     const u2 = Math.random();
@@ -85,7 +85,6 @@ const DistributionGenerator: React.FC<DistributionGeneratorProps> = ({ onDataCha
 
   const generateMockData = (): number[] => {
     const data: number[] = [];
-    // Use default sample size if not specified or not a valid number
     const actualSampleSize = isNaN(Number(sampleSize)) || Number(sampleSize) <= 0 ? 1000 : Number(sampleSize);
     
     switch (selectedDistribution) {
@@ -147,9 +146,7 @@ const DistributionGenerator: React.FC<DistributionGeneratorProps> = ({ onDataCha
         const shape = params.shape || 2;
         const scale = params.scale || 1;
         for (let i = 0; i < actualSampleSize; i++) {
-          // Generate gamma distribution random numbers using Marsaglia and Tsang's method
           if (shape < 1) {
-            // Fix: Use acceptance-rejection method instead of recursive calls
             const k = shape;
             const c = (1 / k) - 1;
             let x, u;
@@ -184,26 +181,22 @@ const DistributionGenerator: React.FC<DistributionGeneratorProps> = ({ onDataCha
 
   const handleGenerate = (): void => {
     try {
-      // Clear previous errors except for standard deviation negative error
-      if (errorMessage !== 'Standard deviation cannot be negative') {
+      if (errorMessage !== t('distribution.errorStdNegative')) {
         setErrorMessage('');
       }
       
-      // Validate parameters
       if (selectedDistribution === 'uniform') {
         const a = params.a !== undefined ? params.a : 0;
         const b = params.b !== undefined ? params.b : 1;
         if (a >= b) {
-          throw new Error('Minimum value must be less than maximum value for uniform distribution');
+          throw new Error(t('distribution.errorUniform'));
         }
       }
       
-      // Validate standard deviation before generating
       if (selectedDistribution === 'normal' && params.std !== undefined && params.std <= 0) {
-        throw new Error('Standard deviation must be positive for normal distribution');
+        throw new Error(t('distribution.errorStdNegative'));
       }
       
-      // Use setTimeout to simulate asynchronous operation without async/await
       setTimeout(() => {
         try {
           const data = generateMockData();
@@ -217,13 +210,13 @@ const DistributionGenerator: React.FC<DistributionGeneratorProps> = ({ onDataCha
           });
         } catch (error) {
           setErrorMessage(
-            error instanceof Error ? error.message : 'Error generating data'
+            error instanceof Error ? error.message : t('errors.parseError')
           );
         }
       }, 300);
     } catch (error) {
       setErrorMessage(
-        error instanceof Error ? error.message : 'Error generating data'
+        error instanceof Error ? error.message : t('errors.parseError')
       );
     }
   };
@@ -236,7 +229,7 @@ const DistributionGenerator: React.FC<DistributionGeneratorProps> = ({ onDataCha
         <GridItem>
           <VStack align="stretch" spacing={4}>
             <Box>
-              <Text mb={2} fontWeight="bold">Select Distribution Type</Text>
+              <Text mb={2} fontWeight="bold">{t('distribution.selectType')}</Text>
               <Select
                 value={selectedDistribution}
                 onChange={(e) => setSelectedDistribution(e.target.value)}
@@ -248,10 +241,10 @@ const DistributionGenerator: React.FC<DistributionGeneratorProps> = ({ onDataCha
             </Box>
             
             <Box>
-              <Text mb={2} fontWeight="bold">Sample Size</Text>
+              <Text mb={2} fontWeight="bold">{t('statistics.sampleSize')}</Text>
               <Input
                 type="text"
-                placeholder="Enter sample size"
+                placeholder={t('dataInput.enterSampleSize')}
                 value={sampleSize}
                 onChange={(e) => {
                   setSampleSize(e.target.value);
@@ -264,13 +257,11 @@ const DistributionGenerator: React.FC<DistributionGeneratorProps> = ({ onDataCha
                 <Text mb={2} fontWeight="bold">{param.label}</Text>
                 <Input
                   type="text"
-                  placeholder={`Enter ${param.name}`}
+                  placeholder={t('distribution.enterParam', { param: param.label })}
                   value={params[param.name] || ''}
                   onChange={(e) => {
                     const value = e.target.value;
-                    // Allow empty or numeric values
                     if (value === '' || /^-?\d*\.?\d*$/.test(value)) {
-                      // Handle standard deviation separately for negative value error
                       if (param.name === 'std') {
                         if (value === '') {
                           handleParamChange(param.name, undefined);
@@ -278,9 +269,7 @@ const DistributionGenerator: React.FC<DistributionGeneratorProps> = ({ onDataCha
                         } else {
                           const numValue = parseFloat(value);
                           if (numValue < 0) {
-                            // Set error message for negative standard deviation
-                            setErrorMessage('Standard deviation cannot be negative');
-                            // Still update the value so user can see it, but mark as invalid
+                            setErrorMessage(t('distribution.errorStdNegative'));
                             handleParamChange(param.name, numValue);
                           } else {
                             setErrorMessage('');
@@ -288,15 +277,12 @@ const DistributionGenerator: React.FC<DistributionGeneratorProps> = ({ onDataCha
                           }
                         }
                       } 
-                      // For other parameters that must be positive
                       else if (value !== '' && (param.name === 'p' || param.name === 'lambda' || param.name === 'shape' || param.name === 'scale')) {
                         const numValue = parseFloat(value);
                         if (numValue > 0) {
                           handleParamChange(param.name, numValue);
                         }
-                        // Ignore non-positive values but allow empty input
                       } 
-                      // For other parameters including mean
                       else {
                         handleParamChange(param.name, value === '' ? param.defaultValue : Number(value));
                       }
@@ -312,7 +298,7 @@ const DistributionGenerator: React.FC<DistributionGeneratorProps> = ({ onDataCha
               variant="solid"
               size="lg"
             >
-              Generate Data
+              {t('distribution.generateData')}
             </Button>
             
             {errorMessage && (
@@ -338,28 +324,20 @@ const DistributionGenerator: React.FC<DistributionGeneratorProps> = ({ onDataCha
               </Box>
             )}
             
-            <Text fontWeight="bold" mb={2}>Parameter Description:</Text>
+            <Text fontWeight="bold" mb={2}>{t('distribution.parameterDescription')}</Text>
             {currentConfig.params.map((param) => (
               <Text key={param.name} fontSize="sm" mb={1}>
-                <strong>{param.label}:</strong> {param.name === 'mean' ? 'Central location of the distribution' : 
-                 param.name === 'std' ? 'Degree of dispersion of the distribution' : 
-                 param.name === 'a' ? 'Minimum value of the interval' : 
-                 param.name === 'b' ? 'Maximum value of the interval' : 
-                 param.name === 'n' ? 'Number of independent trials' : 
-                 param.name === 'p' ? 'Probability of success in each trial' : 
-                 param.name === 'lambda' ? 'Average number of events per unit time' : 
-                 param.name === 'shape' ? 'Shape parameter that affects the distribution shape' : 
-                 param.name === 'scale' ? 'Scale parameter that affects the distribution range' : ''}
+                <strong>{param.label}:</strong> {t(`distribution.description.${param.name}`)}
               </Text>
             ))}
             
             <Box mt={6}>
-              <Text fontWeight="bold" mb={2}>Instructions:</Text>
+              <Text fontWeight="bold" mb={2}>{t('distribution.instructionsTitle')}</Text>
               <ul style={{ listStyleType: 'disc', paddingLeft: '20px' }}>
-                <li style={{ fontSize: 'sm', marginBottom: '4px' }}>Select distribution type</li>
-                <li style={{ fontSize: 'sm', marginBottom: '4px' }}>Adjust sample size</li>
-                <li style={{ fontSize: 'sm', marginBottom: '4px' }}>Set distribution parameters</li>
-                <li style={{ fontSize: 'sm', marginBottom: '4px' }}>Click the "Generate Data" button</li>
+                <li style={{ fontSize: 'sm', marginBottom: '4px' }}>{t('distribution.instructions.selectType')}</li>
+                <li style={{ fontSize: 'sm', marginBottom: '4px' }}>{t('distribution.instructions.adjustSize')}</li>
+                <li style={{ fontSize: 'sm', marginBottom: '4px' }}>{t('distribution.instructions.setParams')}</li>
+                <li style={{ fontSize: 'sm', marginBottom: '4px' }}>{t('distribution.instructions.clickGenerate')}</li>
               </ul>
             </Box>
           </Box>
@@ -367,6 +345,6 @@ const DistributionGenerator: React.FC<DistributionGeneratorProps> = ({ onDataCha
       </Grid>
     </Box>
   );
-}
+};
 
 export default DistributionGenerator;

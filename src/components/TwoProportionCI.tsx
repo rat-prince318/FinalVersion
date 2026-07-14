@@ -1,8 +1,11 @@
 import { useState } from 'react';
 import { Box, Text, Input, Button, VStack, HStack, Card, CardBody, Table, Tr, Th, Td, Alert, Select, RadioGroup, Radio, Stack } from '@chakra-ui/react';
+import { useTranslation } from 'react-i18next';
 import { calculateTwoProportionConfidenceInterval } from '../utils/statistics';
 
 function TwoProportionCI() {
+  const { t } = useTranslation();
+  
   const [successes1, setSuccesses1] = useState<string>('');
   const [trials1, setTrials1] = useState<string>('');
   const [successes2, setSuccesses2] = useState<string>('');
@@ -22,17 +25,16 @@ function TwoProportionCI() {
       const t2 = parseInt(trials2, 10);
       const confidence = confidenceLevel;
 
-      // Parameter validation
       if (isNaN(s1) || isNaN(t1) || isNaN(s2) || isNaN(t2)) {
-        throw new Error('Please enter valid integers');
+        throw new Error(t('errors.validData'));
       }
 
       if (t1 <= 0 || t2 <= 0) {
-        throw new Error('Number of trials must be greater than 0');
+        throw new Error(t('twoProportionCI.trialsGreaterThan0'));
       }
 
       if (s1 < 0 || s1 > t1 || s2 < 0 || s2 > t2) {
-        throw new Error('Number of successes must be between 0 and number of trials');
+        throw new Error(t('twoProportionCI.successesBetween0AndTrials'));
       }
 
       const ciResult = calculateTwoProportionConfidenceInterval(
@@ -46,7 +48,7 @@ function TwoProportionCI() {
 
       setResult(ciResult);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Calculation error');
+      setError(err instanceof Error ? err.message : t('errors.parseError'));
       setResult(null);
     }
   };
@@ -55,7 +57,7 @@ function TwoProportionCI() {
     <Card>
       <CardBody>
         <Text fontSize="xl" fontWeight="bold" mb={6} textAlign="center">
-          Two-Proportion Difference Confidence Interval
+          {t('confidenceInterval.twoProportion')}
         </Text>
 
         {error && (
@@ -66,25 +68,25 @@ function TwoProportionCI() {
 
         <VStack spacing={4} align="stretch">
           <Box p={4} borderWidth={1} borderRadius="lg">
-            <Text fontWeight="medium" mb={4}>First Group Sample</Text>
+            <Text fontWeight="medium" mb={4}>{t('dataInput.sample1')}</Text>
             <HStack spacing={4}>
               <Box flex={1}>
-                <Text fontSize="sm" mb={1}>Number of Successes</Text>
+                <Text fontSize="sm" mb={1}>{t('twoProportionCI.successCount')}</Text>
                 <Input
                   value={successes1}
                   onChange={(e) => setSuccesses1(e.target.value)}
-                  placeholder="Example: 45"
+                  placeholder={t('twoProportionCI.example45')}
                   type="number"
                   min="0"
                   size="lg"
                 />
               </Box>
               <Box flex={1}>
-                <Text fontSize="sm" mb={1}>Total Number of Trials</Text>
+                <Text fontSize="sm" mb={1}>{t('statistics.sampleSize')}</Text>
                 <Input
                   value={trials1}
                   onChange={(e) => setTrials1(e.target.value)}
-                  placeholder="Example: 100"
+                  placeholder={t('twoProportionCI.example100')}
                   type="number"
                   min="1"
                   size="lg"
@@ -94,25 +96,25 @@ function TwoProportionCI() {
           </Box>
 
           <Box p={4} borderWidth={1} borderRadius="lg">
-            <Text fontWeight="medium" mb={4}>Second Group Sample</Text>
+            <Text fontWeight="medium" mb={4}>{t('dataInput.sample2')}</Text>
             <HStack spacing={4}>
               <Box flex={1}>
-                <Text fontSize="sm" mb={1}>Number of Successes</Text>
+                <Text fontSize="sm" mb={1}>{t('twoProportionCI.successCount')}</Text>
                 <Input
                   value={successes2}
                   onChange={(e) => setSuccesses2(e.target.value)}
-                  placeholder="Example: 60"
+                  placeholder={t('twoProportionCI.example60')}
                   type="number"
                   min="0"
                   size="lg"
                 />
               </Box>
               <Box flex={1}>
-                <Text fontSize="sm" mb={1}>Total Number of Trials</Text>
+                <Text fontSize="sm" mb={1}>{t('statistics.sampleSize')}</Text>
                 <Input
                   value={trials2}
                   onChange={(e) => setTrials2(e.target.value)}
-                  placeholder="Example: 100"
+                  placeholder={t('twoProportionCI.example100')}
                   type="number"
                   min="1"
                   size="lg"
@@ -123,7 +125,7 @@ function TwoProportionCI() {
 
           <HStack spacing={4}>
             <Box flex={1}>
-              <Text fontWeight="medium" mb={2}>Confidence Level</Text>
+              <Text fontWeight="medium" mb={2}>{t('confidenceInterval.confidenceLevel')}</Text>
               <Select
                 value={confidenceLevel.toString()}
                 onChange={(e) => setConfidenceLevel(parseFloat(e.target.value))}
@@ -136,69 +138,73 @@ function TwoProportionCI() {
               </Select>
             </Box>
             <Box flex={1}>
-              <Text fontWeight="medium" mb={2}>Calculation Method</Text>
+              <Text fontWeight="medium" mb={2}>{t('statistics.calculationMethod')}</Text>
               <RadioGroup value={method} onChange={(v) => setMethod(v as 'wald' | 'continuity')}>
                 <Stack direction="row">
-                  <Radio value="wald">Wald Interval</Radio>
-                  <Radio value="continuity">Continuity Correction</Radio>
+                  <Radio value="wald">{t('confidenceInterval.waldInterval')}</Radio>
+                  <Radio value="continuity">{t('confidenceInterval.continuityCorrection')}</Radio>
                 </Stack>
               </RadioGroup>
             </Box>
           </HStack>
 
           <Button onClick={handleCalculate} colorScheme="blue" size="lg">
-            Calculate Confidence Interval
+            {t('common.calculateCI')}
           </Button>
         </VStack>
 
         {result && (
           <Box mt={6} p={4} borderWidth={1} borderRadius="lg" bg="gray.50">
-            <Text fontSize="lg" fontWeight="bold" mb={4}>Calculation Results</Text>
+            <Text fontSize="lg" fontWeight="bold" mb={4}>{t('statistics.basicStats')}</Text>
             
             <Table variant="simple">
               <tbody>
                 <Tr>
-                  <Th>Statistic</Th>
-                  <Th>Value</Th>
+                  <Th>{t('statistics.calculationMethod')}</Th>
+                  <Th>{t('confidenceInterval.value')}</Th>
                 </Tr>
                 <Tr>
-                  <Th>Calculation Method</Th>
+                  <Th>{t('statistics.calculationMethod')}</Th>
                   <Td>{result.method}</Td>
                 </Tr>
                 <Tr>
-                  <Th>First Group Proportion</Th>
+                  <Th>{t('dataInput.sample1')} {t('confidenceInterval.proportion')}</Th>
                   <Td>{(result.proportion1 * 100).toFixed(2)}%</Td>
                 </Tr>
                 <Tr>
-                  <Th>Second Group Proportion</Th>
+                  <Th>{t('dataInput.sample2')} {t('confidenceInterval.proportion')}</Th>
                   <Td>{(result.proportion2 * 100).toFixed(2)}%</Td>
                 </Tr>
                 <Tr>
-                  <Th>Proportion Difference</Th>
+                  <Th>{t('confidenceInterval.proportion')} {t('statistics.range')}</Th>
                   <Td>{(result.proportionDiff * 100).toFixed(2)}%</Td>
                 </Tr>
                 <Tr>
-                  <Th>Critical Value</Th>
+                  <Th>{t('statistics.criticalValue')}</Th>
                   <Td>{result.criticalValue.toFixed(4)}</Td>
                 </Tr>
                 <Tr>
-                  <Th>Margin of Error</Th>
+                  <Th>{t('statistics.marginOfError')}</Th>
                   <Td>{(result.marginOfError * 100).toFixed(2)}%</Td>
                 </Tr>
                 <Tr>
-                  <Th>Confidence Interval</Th>
+                  <Th>{t('confidenceInterval.title')}</Th>
                   <Td>[{(result.lower * 100).toFixed(2)}%, {(result.upper * 100).toFixed(2)}%]</Td>
                 </Tr>
               </tbody>
             </Table>
 
             <Box mt={4} p={3} bg="blue.50" borderRadius="lg">
-              <Text fontWeight="medium">Result Interpretation</Text>
+              <Text fontWeight="medium">{t('confidenceInterval.resultInterpretation')}</Text>
               <Text mt={1} fontSize="sm">
-                We are {confidenceLevel * 100}% confident that the difference between the two population proportions lies between [{(result.lower * 100).toFixed(2)}%, {(result.upper * 100).toFixed(2)}%].
-                {result.lower > 0 && " This indicates that the proportion in the first population is significantly higher than in the second population."}
-                {result.upper < 0 && " This indicates that the proportion in the first population is significantly lower than in the second population."}
-                {result.lower <= 0 && result.upper >= 0 && " The two population proportions may not be significantly different."}
+                {t('confidenceInterval.twoProportionInterpretation1', { 
+                  percent: confidenceLevel * 100, 
+                  lower: (result.lower * 100).toFixed(2), 
+                  upper: (result.upper * 100).toFixed(2) 
+                })}
+                {result.lower > 0 && ` ${t('confidenceInterval.twoProportionInterpretation2')}`}
+                {result.upper < 0 && ` ${t('confidenceInterval.twoProportionInterpretation3')}`}
+                {result.lower <= 0 && result.upper >= 0 && ` ${t('confidenceInterval.twoProportionInterpretation4')}`}
               </Text>
             </Box>
           </Box>

@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   Box,
   Text,
@@ -60,6 +61,7 @@ const GoodnessOfFitTest: React.FC<GoodnessOfFitTestProps> = ({
   basicStats = null,
   onTestComplete,
 }) => {
+  const { t } = useTranslation();
   // Test parameters state
   const [testType, setTestType] = useState<GoFTestType>('kolmogorov-smirnov');
   const [distributionType, setDistributionType] = useState<DistributionTypeForGoF>('normal');
@@ -103,7 +105,7 @@ const GoodnessOfFitTest: React.FC<GoodnessOfFitTestProps> = ({
   const distributionOptions: TestDistributionOption[] = [
     {
       type: 'normal',
-      name: 'Normal Distribution',
+      name: t('distribution.normal'),
       description: 'Bell-shaped symmetric distribution',
       supportedTests: ['kolmogorov-smirnov', 'chi-square', 'anderson-darling', 'shapiro-wilk', 'jarque-bera'],
       requiresParameterEstimation: true,
@@ -112,7 +114,7 @@ const GoodnessOfFitTest: React.FC<GoodnessOfFitTestProps> = ({
     },
     {
       type: 'uniform',
-      name: 'Uniform Distribution',
+      name: t('distribution.uniform'),
       description: 'Constant probability over an interval',
       supportedTests: ['kolmogorov-smirnov', 'chi-square'],
       requiresParameterEstimation: true,
@@ -121,7 +123,7 @@ const GoodnessOfFitTest: React.FC<GoodnessOfFitTestProps> = ({
     },
     {
       type: 'exponential',
-      name: 'Exponential Distribution',
+      name: t('distribution.exponential'),
       description: 'Memoryless distribution for waiting times',
       supportedTests: ['kolmogorov-smirnov', 'chi-square'],
       requiresParameterEstimation: true,
@@ -130,7 +132,7 @@ const GoodnessOfFitTest: React.FC<GoodnessOfFitTestProps> = ({
     },
     {
       type: 'poisson',
-      name: 'Poisson Distribution',
+      name: t('distribution.poisson'),
       description: 'Discrete distribution for counting events',
       supportedTests: ['kolmogorov-smirnov', 'chi-square'],
       requiresParameterEstimation: true,
@@ -139,7 +141,7 @@ const GoodnessOfFitTest: React.FC<GoodnessOfFitTestProps> = ({
     },
     {
       type: 'binomial',
-      name: 'Binomial Distribution',
+      name: t('distribution.binomial'),
       description: 'Discrete distribution for number of successes in fixed trials',
       supportedTests: ['kolmogorov-smirnov', 'chi-square'],
       requiresParameterEstimation: true,
@@ -341,16 +343,16 @@ const GoodnessOfFitTest: React.FC<GoodnessOfFitTestProps> = ({
 
       // Validate inputs
       if (!dataset || dataset.length === 0) {
-        throw new Error('Dataset is required');
+        throw new Error(t('goodnessOfFit.errors.noDataset'));
       }
 
       const alpha = parseFloat(significanceLevel);
       if (isNaN(alpha) || alpha <= 0 || alpha >= 1) {
-        throw new Error('Significance level must be between 0 and 1');
+        throw new Error(t('goodnessOfFit.errors.invalidAlpha'));
       }
 
       if (dataset.length < 5) {
-        throw new Error('Sample size must be at least 5');
+        throw new Error(t('goodnessOfFit.errors.smallSample'));
       }
 
       // Get parameters to use
@@ -420,25 +422,25 @@ const GoodnessOfFitTest: React.FC<GoodnessOfFitTestProps> = ({
     }
   };
 
-  // 自动测试功能
+  // Auto test functionality
   const performAutoTest = async () => {
     try {
       setError(null);
       setAutoTestRunning(true);
       setAutoTestResults([]);
 
-      // 验证输入
+      // Validate inputs
       if (!dataset || dataset.length === 0) {
-        throw new Error('数据集是必需的');
+        throw new Error(t('goodnessOfFit.errors.noDataset'));
       }
 
       const alpha = parseFloat(significanceLevel);
       if (isNaN(alpha) || alpha <= 0 || alpha >= 1) {
-        throw new Error('显著性水平必须在0和1之间');
+        throw new Error(t('goodnessOfFit.errors.invalidAlpha'));
       }
 
       if (dataset.length < 5) {
-        throw new Error('样本大小必须至少为5');
+        throw new Error(t('goodnessOfFit.errors.smallSample'));
       }
 
       const testResults: any[] = [];
@@ -680,14 +682,14 @@ const GoodnessOfFitTest: React.FC<GoodnessOfFitTestProps> = ({
 
   return (
     <Box>
-      <Text fontSize="xl" fontWeight="bold" mb={4}>Goodness-of-Fit Testing</Text>
+      <Text fontSize="xl" fontWeight="bold" mb={4}>{t('goodnessOfFit.title')}</Text>
       
       <Tabs variant="soft-rounded" colorScheme="blue" mb={6}>
         <TabList>
-          <Tab>Test Configuration</Tab>
-          <Tab>Auto Test</Tab>
-          <Tab>Results & Visualization</Tab>
-          <Tab>Help & Documentation</Tab>
+          <Tab>{t('goodnessOfFit.testConfig')}</Tab>
+          <Tab>{t('goodnessOfFit.autoTest')}</Tab>
+          <Tab>{t('goodnessOfFit.results')}</Tab>
+          <Tab>{t('goodnessOfFit.help')}</Tab>
         </TabList>
         
         <TabPanels>
@@ -696,12 +698,12 @@ const GoodnessOfFitTest: React.FC<GoodnessOfFitTestProps> = ({
               {/* Test Configuration */}
               <Card>
                 <CardBody>
-                  <Text fontSize="lg" fontWeight="bold" mb={4}>Test Configuration</Text>
+                  <Text fontSize="lg" fontWeight="bold" mb={4}>{t('goodnessOfFit.testConfig')}</Text>
                   
                   <Grid templateColumns={{ base: '1fr', md: 'repeat(2, 1fr)' }} gap={4}>
                     {/* Distribution Type */}
                     <FormControl>
-                      <FormLabel>Distribution to Test</FormLabel>
+                      <FormLabel>{t('goodnessOfFit.distribution')}</FormLabel>
                       <Select 
                         value={distributionType} 
                         onChange={(e) => {
@@ -719,7 +721,7 @@ const GoodnessOfFitTest: React.FC<GoodnessOfFitTestProps> = ({
 
                     {/* Test Method */}
                     <FormControl>
-                      <FormLabel>Test Method</FormLabel>
+                      <FormLabel>{t('goodnessOfFit.testMethod')}</FormLabel>
                       <Select 
                         value={testType} 
                         onChange={(e) => setTestType(e.target.value as GoFTestType)}
@@ -739,21 +741,21 @@ const GoodnessOfFitTest: React.FC<GoodnessOfFitTestProps> = ({
 
                     {/* Significance Level */}
                     <FormControl>
-                      <FormLabel>Significance Level (α)</FormLabel>
+                      <FormLabel>{t('goodnessOfFit.significanceLevel')}</FormLabel>
                       <Select 
                         value={significanceLevel} 
                         onChange={(e) => setSignificanceLevel(e.target.value)}
                       >
-                        <option value="0.01">0.01 (99% confidence)</option>
-                        <option value="0.05">0.05 (95% confidence)</option>
-                        <option value="0.10">0.10 (90% confidence)</option>
+                        <option value="0.01">0.01 (99% {t('statistics.confidenceLevel')})</option>
+                        <option value="0.05">0.05 (95% {t('statistics.confidenceLevel')})</option>
+                        <option value="0.10">0.10 (90% {t('statistics.confidenceLevel')})</option>
                       </Select>
                     </FormControl>
 
                     {/* Chi-square specific: Number of bins */}
                     {testType === 'chi-square' && (
                       <FormControl>
-                        <FormLabel>Number of Bins</FormLabel>
+                        <FormLabel>{t('goodnessOfFit.numBins')}</FormLabel>
                         <NumberInput
                           min={5}
                           max={50}
@@ -768,13 +770,13 @@ const GoodnessOfFitTest: React.FC<GoodnessOfFitTestProps> = ({
 
                   {/* Auto-estimate parameters toggle */}
                   <FormControl mt={4}>
-                    <FormLabel>Parameter Estimation</FormLabel>
+                    <FormLabel>{t('goodnessOfFit.parameterEstimation')}</FormLabel>
                     <HStack>
                       <Switch
                         isChecked={autoEstimateParams}
                         onChange={(e) => setAutoEstimateParams(e.target.checked)}
                       />
-                      <Text>Automatically estimate parameters from data</Text>
+                      <Text>{t('goodnessOfFit.autoEstimate')}</Text>
                     </HStack>
                   </FormControl>
                 </CardBody>
@@ -784,7 +786,7 @@ const GoodnessOfFitTest: React.FC<GoodnessOfFitTestProps> = ({
               <Card>
                 <CardBody>
                   <Text fontSize="lg" fontWeight="bold" mb={4}>
-                    Distribution Parameters
+                    {t('goodnessOfFit.parameters')}
                   </Text>
                   
                   {getCurrentDistribution()?.requiresParameterEstimation && (
@@ -792,21 +794,21 @@ const GoodnessOfFitTest: React.FC<GoodnessOfFitTestProps> = ({
                       {!autoEstimateParams && (
                         <Box>
                           <Text fontSize="sm" color="gray.600" mb={2}>
-                            Enter custom parameters for the {getCurrentDistribution()?.name}
+                            {t('goodnessOfFit.customParams', { distribution: getCurrentDistribution()?.name })}
                           </Text>
                           
                           <Grid templateColumns={{ base: '1fr', md: 'repeat(2, 1fr)' }} gap={4}>
                             {getCurrentDistribution()?.parameterNames.map(paramName => (
                               <FormControl key={paramName}>
                                 <FormLabel textTransform="capitalize">
-                                  {paramName === 'std' ? 'Standard Deviation' : paramName}
+                                  {paramName === 'std' ? t('statistics.standardDeviation') : paramName}
                                 </FormLabel>
                                 <Input
                                   type="number"
                                   step="any"
                                   value={customParams[paramName] || ''}
                                   onChange={(e) => handleCustomParamChange(paramName, e.target.value)}
-                                  placeholder={`Enter ${paramName}`}
+                                  placeholder={`${t('common.enter')} ${paramName}`}
                                 />
                               </FormControl>
                             ))}
@@ -817,12 +819,12 @@ const GoodnessOfFitTest: React.FC<GoodnessOfFitTestProps> = ({
                       {autoEstimateParams && estimatedParams && Object.keys(estimatedParams).length > 0 && (
                         <Box p={3} bgColor="blue.50" borderRadius={4}>
                           <Text fontSize="sm" fontWeight="bold" mb={2}>
-                            Estimated Parameters (from data):
+                            {t('goodnessOfFit.estimatedParams')}
                           </Text>
                           <Stack spacing={1}>
                             {Object.entries(estimatedParams).map(([param, value]) => (
                               <Text key={param} fontSize="sm">
-                                {param === 'std' ? 'Standard Deviation' : param}: {value.toFixed(4)}
+                                {param === 'std' ? t('statistics.standardDeviation') : param}: {value.toFixed(4)}
                               </Text>
                             ))}
                           </Stack>
@@ -840,7 +842,7 @@ const GoodnessOfFitTest: React.FC<GoodnessOfFitTestProps> = ({
                 size="lg"
                 isDisabled={!isTestApplicable()}
               >
-                Perform Goodness-of-Fit Test
+                {t('goodnessOfFit.performTest')}
               </Button>
             </VStack>
           </TabPanel>
@@ -851,28 +853,28 @@ const GoodnessOfFitTest: React.FC<GoodnessOfFitTestProps> = ({
               {/* Auto Test Controls */}
               <Card>
                 <CardBody>
-                  <Text fontSize="lg" fontWeight="bold" mb={4}>Automatic Goodness-of-Fit Test</Text>
+                  <Text fontSize="lg" fontWeight="bold" mb={4}>{t('goodnessOfFit.autoTestTitle')}</Text>
                   <Text fontSize="sm" color="gray.600" mb={4}>
-                    Automatically test all supported distribution types and test methods, and recommend the best-fitting distribution type based on p-value.
+                    {t('goodnessOfFit.autoTestDesc')}
                   </Text>
                   
                   <Grid templateColumns={{ base: '1fr', md: 'repeat(2, 1fr)' }} gap={4}>
                     {/* Significance Level */}
                     <FormControl>
-                      <FormLabel>Significance Level (α)</FormLabel>
+                      <FormLabel>{t('goodnessOfFit.significanceLevel')}</FormLabel>
                       <Select 
                         value={significanceLevel} 
                         onChange={(e) => setSignificanceLevel(e.target.value)}
                       >
-                        <option value="0.01">0.01 (99% confidence)</option>
-                        <option value="0.05">0.05 (95% confidence)</option>
-                        <option value="0.10">0.10 (90% confidence)</option>
+                        <option value="0.01">0.01 (99% {t('statistics.confidenceLevel')})</option>
+                        <option value="0.05">0.05 (95% {t('statistics.confidenceLevel')})</option>
+                        <option value="0.10">0.10 (90% {t('statistics.confidenceLevel')})</option>
                       </Select>
                     </FormControl>
 
                     {/* Chi-square specific: Number of bins */}
                     <FormControl>
-                      <FormLabel>Chi-Square Test Bins</FormLabel>
+                      <FormLabel>{t('goodnessOfFit.numBins')}</FormLabel>
                       <NumberInput
                         min={5}
                         max={50}
@@ -891,9 +893,9 @@ const GoodnessOfFitTest: React.FC<GoodnessOfFitTestProps> = ({
                     size="lg"
                     mt={4}
                     isLoading={autoTestRunning}
-                    loadingText="Running auto test..."
+                    loadingText={t('goodnessOfFit.runningAutoTest')}
                   >
-                    Start Auto Test
+                    {t('goodnessOfFit.startAutoTest')}
                   </Button>
                 </CardBody>
               </Card>
@@ -902,24 +904,24 @@ const GoodnessOfFitTest: React.FC<GoodnessOfFitTestProps> = ({
               {recommendedDistribution && (
                 <Card>
                   <CardBody>
-                    <Text fontSize="lg" fontWeight="bold" mb={4}>Recommended Result</Text>
+                    <Text fontSize="lg" fontWeight="bold" mb={4}>{t('goodnessOfFit.recommendedResult')}</Text>
                     <Box p={4} bgColor="green.50" borderRadius={4} border="1px" borderColor="green.200">
                       <Text fontWeight="bold" color="green.700" mb={2}>
-                        🏆 Best Fitting Distribution
+                        {t('goodnessOfFit.bestFit')}
                       </Text>
                       <Text fontSize="lg" fontWeight="semibold" mb={2}>
                         {recommendedDistribution.distributionName}
                       </Text>
                       <Text fontSize="sm" color="green.600" mb={3}>
-                        Recommendation reason: p-value = {recommendedDistribution.pValue.toFixed(4)} (highest)
+                        {t('goodnessOfFit.recommendationReason', { pValue: recommendedDistribution.pValue.toFixed(4) })}
                       </Text>
                       <Grid templateColumns={{ base: '1fr', md: 'repeat(2, 1fr)' }} gap={4}>
                         <Box>
-                          <Text fontSize="sm" fontWeight="bold">Recommended test method:</Text>
+                          <Text fontSize="sm" fontWeight="bold">{t('goodnessOfFit.recommendedMethod')}</Text>
                           <Text fontSize="sm">{recommendedDistribution.testName}</Text>
                         </Box>
                         <Box>
-                          <Text fontSize="sm" fontWeight="bold">Confidence level:</Text>
+                          <Text fontSize="sm" fontWeight="bold">{t('goodnessOfFit.confidenceLevel')}</Text>
                           <Text fontSize="sm">{(recommendedDistribution.confidenceLevel * 100).toFixed(1)}%</Text>
                         </Box>
                       </Grid>

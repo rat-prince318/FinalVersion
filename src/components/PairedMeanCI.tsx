@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Box, Text, Button, VStack, HStack, Card, CardBody, Table, Tr, Th, Td, Alert, Select, Textarea } from '@chakra-ui/react';
+import { useTranslation } from 'react-i18next';
 import { calculateTwoSampleConfidenceInterval } from '../utils/statistics';
 
 interface PairedMeanCIProps {
@@ -7,6 +8,8 @@ interface PairedMeanCIProps {
 }
 
 function PairedMeanCI({ pairedData = { before: [], after: [] } }: PairedMeanCIProps) {
+  const { t } = useTranslation();
+  
   const [beforeData, setBeforeData] = useState<string>('');
   const [afterData, setAfterData] = useState<string>('');
   const [confidenceLevel, setConfidenceLevel] = useState<string>('0.95');
@@ -26,7 +29,7 @@ function PairedMeanCI({ pairedData = { before: [], after: [] } }: PairedMeanCIPr
       .filter(s => s.trim() !== '')
       .map(s => {
         const num = parseFloat(s);
-        if (isNaN(num)) throw new Error('Invalid data format, please enter numbers');
+        if (isNaN(num)) throw new Error(t('errors.parseError'));
         return num;
       });
   };
@@ -39,11 +42,11 @@ function PairedMeanCI({ pairedData = { before: [], after: [] } }: PairedMeanCIPr
       const confidence = parseFloat(confidenceLevel);
 
       if (before.length === 0 || after.length === 0) {
-        throw new Error('Data cannot be empty');
+        throw new Error(t('errors.validData'));
       }
 
       if (before.length !== after.length) {
-        throw new Error('Before and after datasets must have the same length');
+        throw new Error(t('confidenceInterval.sameLengthError'));
       }
 
       const ciResult = calculateTwoSampleConfidenceInterval(
@@ -55,7 +58,7 @@ function PairedMeanCI({ pairedData = { before: [], after: [] } }: PairedMeanCIPr
 
       setResult(ciResult);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Calculation error');
+      setError(err instanceof Error ? err.message : t('errors.parseError'));
       setResult(null);
     }
   };
@@ -70,7 +73,7 @@ function PairedMeanCI({ pairedData = { before: [], after: [] } }: PairedMeanCIPr
     <Card>
       <CardBody>
         <Text fontSize="xl" fontWeight="bold" mb={6} textAlign="center">
-          Paired Samples Mean Difference Confidence Interval
+          {t('confidenceInterval.pairedMean')}
         </Text>
 
         {error && (
@@ -81,22 +84,22 @@ function PairedMeanCI({ pairedData = { before: [], after: [] } }: PairedMeanCIPr
 
         <VStack spacing={4} align="stretch">
           <Box>
-            <Text fontWeight="medium" mb={2}>Pre-test Data (comma or space separated)</Text>
+            <Text fontWeight="medium" mb={2}>{t('dataInput.preTest')}</Text>
             <Textarea
               value={beforeData}
               onChange={(e) => setBeforeData(e.target.value)}
-              placeholder="Example: 10.2, 11.5, 9.8, 12.1"
+              placeholder={t('dataInput.enterData')}
               size="lg"
               rows={3}
             />
           </Box>
 
           <Box>
-            <Text fontWeight="medium" mb={2}>Post-test Data (comma or space separated)</Text>
+            <Text fontWeight="medium" mb={2}>{t('dataInput.postTest')}</Text>
             <Textarea
               value={afterData}
               onChange={(e) => setAfterData(e.target.value)}
-              placeholder="Example: 12.5, 13.2, 11.8, 14.2"
+              placeholder={t('dataInput.enterData')}
               size="lg"
               rows={3}
             />
@@ -104,7 +107,7 @@ function PairedMeanCI({ pairedData = { before: [], after: [] } }: PairedMeanCIPr
 
           <HStack>
             <Box flex={1}>
-              <Text fontWeight="medium" mb={2}>Confidence Level</Text>
+              <Text fontWeight="medium" mb={2}>{t('confidenceInterval.confidenceLevel')}</Text>
               <Select
                 value={confidenceLevel}
                 onChange={(e) => setConfidenceLevel(e.target.value)}
@@ -117,35 +120,35 @@ function PairedMeanCI({ pairedData = { before: [], after: [] } }: PairedMeanCIPr
               </Select>
             </Box>
             <Button onClick={handleCalculate} colorScheme="blue" size="lg">
-              Calculate Confidence Interval
+              {t('common.generate')} {t('confidenceInterval.title')}
             </Button>
           </HStack>
         </VStack>
 
         {result && (
           <Box mt={6} p={4} borderWidth={1} borderRadius="lg" bg="gray.50">
-            <Text fontSize="lg" fontWeight="bold" mb={4}>Calculation Results</Text>
+            <Text fontSize="lg" fontWeight="bold" mb={4}>{t('statistics.basicStats')}</Text>
             
             <Table variant="simple" mb={4}>
               <tbody>
                 <Tr>
-                  <Th>Statistic</Th>
+                  <Th>{t('statistics.calculationMethod')}</Th>
                   <Td>{result.method}</Td>
                 </Tr>
                 <Tr>
-                  <Th>Mean Difference</Th>
+                  <Th>{t('statistics.mean')} {t('statistics.range')}</Th>
                   <Td>{result.meanDiff.toFixed(4)}</Td>
                 </Tr>
                 <Tr>
-                  <Th>Critical Value</Th>
+                  <Th>{t('statistics.criticalValue')}</Th>
                   <Td>{result.criticalValue.toFixed(4)}</Td>
                 </Tr>
                 <Tr>
-                  <Th>Margin of Error</Th>
+                  <Th>{t('statistics.marginOfError')}</Th>
                   <Td>{result.marginOfError.toFixed(4)}</Td>
                 </Tr>
                 <Tr>
-                  <Th>Confidence Interval</Th>
+                  <Th>{t('confidenceInterval.title')}</Th>
                   <Td>[{result.lower.toFixed(4)}, {result.upper.toFixed(4)}]</Td>
                 </Tr>
               </tbody>
@@ -153,14 +156,14 @@ function PairedMeanCI({ pairedData = { before: [], after: [] } }: PairedMeanCIPr
 
             {differences.length > 0 && (
               <Box mt={4}>
-                <Text fontWeight="medium" mb={2}>Difference Data Statistics</Text>
+                <Text fontWeight="medium" mb={2}>{t('confidenceInterval.difference')} {t('statistics.basicStats')}</Text>
                 <Table variant="simple">
                   <thead>
                     <Tr>
-                      <Th>Index</Th>
-                      <Th>Pre-test Value</Th>
-                      <Th>Post-test Value</Th>
-                      <Th>Difference</Th>
+                      <Th>{t('statistics.index')}</Th>
+                      <Th>{t('dataInput.preTest')}</Th>
+                      <Th>{t('dataInput.postTest')}</Th>
+                      <Th>{t('confidenceInterval.difference')}</Th>
                     </Tr>
                   </thead>
                   <tbody>

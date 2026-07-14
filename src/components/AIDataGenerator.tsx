@@ -1,16 +1,18 @@
 import { useState } from 'react';
 import { Button, Box, Text, Slider, SliderTrack, SliderFilledTrack, SliderThumb, VStack, Alert, AlertIcon, AlertDescription, Textarea } from '@chakra-ui/react';
+import { useTranslation } from 'react-i18next';
 import { AIDataGeneratorProps } from '../types';
 
 function AIDataGenerator({ onDataChange }: AIDataGeneratorProps) {
+  const { t } = useTranslation();
   const [sampleSize, setSampleSize] = useState<number>(1000);
-  const [dataDescription, setDataDescription] = useState<string>('Generate random data following normal distribution');
+  const [dataDescription, setDataDescription] = useState<string>(t('dataGenerator.aiDefaultDescription'));
   const [isGenerating, setIsGenerating] = useState<boolean>(false);
   const [errorMessage, setErrorMessage] = useState<string>('');
 
   const handleGenerate = () => {
     if (!dataDescription.trim()) {
-      setErrorMessage('Please enter data description');
+      setErrorMessage(t('dataGenerator.aiEnterDescription'));
       return;
     }
 
@@ -26,7 +28,7 @@ function AIDataGenerator({ onDataChange }: AIDataGeneratorProps) {
         
         onDataChange(data, {
           type: 'ai',
-          name: 'AI Generated Data',
+          name: t('dataGenerator.aiGeneratedName'),
           parameters: { 
             sampleSize,
             // Convert description to string length as numeric parameter to avoid type errors
@@ -35,7 +37,7 @@ function AIDataGenerator({ onDataChange }: AIDataGeneratorProps) {
         });
       } catch (error) {
         setErrorMessage(
-          error instanceof Error ? error.message : 'An error occurred while generating data'
+          error instanceof Error ? error.message : t('dataGenerator.aiGenerateError')
         );
       } finally {
         setIsGenerating(false);
@@ -103,17 +105,17 @@ function AIDataGenerator({ onDataChange }: AIDataGeneratorProps) {
     <Box p={4}>
       <VStack align="stretch" spacing={4}>
         <Box>
-          <Text mb={2} fontWeight="bold">Data Description</Text>
+          <Text mb={2} fontWeight="bold">{t('dataGenerator.aiDataDescription')}</Text>
           <Textarea
             value={dataDescription}
             onChange={(e) => setDataDescription(e.target.value)}
-            placeholder="Describe the data features you want to generate, e.g., Generate random data following normal distribution" 
+            placeholder={t('dataGenerator.aiDescriptionPlaceholder')} 
             rows={4}
           />
         </Box>
         
         <Box>
-          <Text mb={2} fontWeight="bold">Sample Size: {sampleSize}</Text>
+          <Text mb={2} fontWeight="bold">{t('dataGenerator.aiSampleSize', { sampleSize })}</Text>
           <Slider
             min={10}
             max={10000}
@@ -134,9 +136,9 @@ function AIDataGenerator({ onDataChange }: AIDataGeneratorProps) {
           variant="solid"
           size="lg"
           isLoading={isGenerating}
-          loadingText="Generating..."
+          loadingText={t('dataGenerator.aiGenerating')}
         >
-          Generate Data with AI
+          {t('dataGenerator.aiGenerateButton')}
         </Button>
         
         {errorMessage && (
@@ -147,19 +149,19 @@ function AIDataGenerator({ onDataChange }: AIDataGeneratorProps) {
         )}
         
         <Box mt={6} p={4} bg="gray.50" borderRadius="md">
-          <Text fontWeight="bold" mb={2}>Instructions:</Text>
+          <Text fontWeight="bold" mb={2}>{t('dataGenerator.aiInstructions')}</Text>
           <ul style={{ listStyleType: 'disc', paddingLeft: '20px' }}>
-            <li style={{ fontSize: 'sm', marginBottom: '4px' }}>Describe the data features you want to generate in the text box</li>
-            <li style={{ fontSize: 'sm', marginBottom: '4px' }}>Adjust the sample size</li>
-            <li style={{ fontSize: 'sm', marginBottom: '4px' }}>Click the "Generate Data with AI" button</li>
-            <li style={{ fontSize: 'sm', marginBottom: '4px' }}>Wait for the AI to generate data matching your description</li>
+            <li style={{ fontSize: 'sm', marginBottom: '4px' }}>{t('dataGenerator.aiInstruction1')}</li>
+            <li style={{ fontSize: 'sm', marginBottom: '4px' }}>{t('dataGenerator.aiInstruction2')}</li>
+            <li style={{ fontSize: 'sm', marginBottom: '4px' }}>{t('dataGenerator.aiInstruction3')}</li>
+            <li style={{ fontSize: 'sm', marginBottom: '4px' }}>{t('dataGenerator.aiInstruction4')}</li>
           </ul>
           
-          <Text mt={4} fontWeight="bold" mb={2}>Example Descriptions:</Text>
+          <Text mt={4} fontWeight="bold" mb={2}>{t('dataGenerator.aiExampleDescriptions')}</Text>
           <ul style={{ listStyleType: 'none', paddingLeft: '0' }}>
-            <li style={{ fontSize: 'sm', marginBottom: '4px' }}>• Generate random data following normal distribution</li>
-            <li style={{ fontSize: 'sm', marginBottom: '4px' }}>• Generate uniformly distributed data between 0 and 1</li>
-            <li style={{ fontSize: 'sm', marginBottom: '4px' }}>• Generate exponentially distributed waiting time data</li>
+            <li style={{ fontSize: 'sm', marginBottom: '4px' }}>• {t('dataGenerator.aiExample1')}</li>
+            <li style={{ fontSize: 'sm', marginBottom: '4px' }}>• {t('dataGenerator.aiExample2')}</li>
+            <li style={{ fontSize: 'sm', marginBottom: '4px' }}>• {t('dataGenerator.aiExample3')}</li>
           </ul>
         </Box>
       </VStack>

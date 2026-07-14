@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { calculateSampleSizeForMean, calculateSampleSizeForProportion } from '../utils/statistics';
 import { 
   Card, 
@@ -26,6 +27,8 @@ interface SampleSizeCalculatorProps {
 }
 
 const SampleSizeCalculator: React.FC<SampleSizeCalculatorProps> = ({ dataset, basicStats }) => {
+  const { t } = useTranslation();
+  
   // Calculation Type: Mean or Proportion
   const [calculationType, setCalculationType] = useState<'mean' | 'proportion'>('mean');
   // Confidence Level
@@ -50,13 +53,9 @@ const SampleSizeCalculator: React.FC<SampleSizeCalculatorProps> = ({ dataset, ba
 
   // Auto-populate standard deviation (if dataset or basic statistics are available)
   useEffect(() => {
-    // Prefer using passed basic statistics
     if (basicStats && basicStats.std !== undefined) {
       setMeanParams(prev => ({ ...prev, estimatedStd: basicStats.std.toString() }));
-    } 
-    // Otherwise calculate using dataset
-    else if (dataset && dataset.length > 0) {
-      // Simple implementation for calculating standard deviation
+    } else if (dataset && dataset.length > 0) {
       const mean = dataset.reduce((sum, val) => sum + val, 0) / dataset.length;
       const std = Math.sqrt(dataset.reduce((sum, val) => sum + Math.pow(val - mean, 2), 0) / (dataset.length - 1));
       setMeanParams(prev => ({ ...prev, estimatedStd: std.toString() }));
@@ -69,25 +68,22 @@ const SampleSizeCalculator: React.FC<SampleSizeCalculatorProps> = ({ dataset, ba
       setError(null);
       setResult(null);
 
-      // Validate margin of error
       const margin = parseFloat(marginOfError);
       if (isNaN(margin) || margin <= 0) {
-        throw new Error('Please enter a valid margin of error (must be greater than 0)');
+        throw new Error(t('sampleSize.errors.invalidMargin'));
       }
 
       let sampleSize: number;
 
       if (calculationType === 'mean') {
-        // Mean sample size calculation
         const populationStd = meanParams.populationStd ? parseFloat(meanParams.populationStd) : undefined;
         const estimatedStd = meanParams.estimatedStd ? parseFloat(meanParams.estimatedStd) : undefined;
 
-        // Validate standard deviation
         if (populationStd !== undefined && (isNaN(populationStd) || populationStd <= 0)) {
-          throw new Error('Population standard deviation must be greater than 0');
+          throw new Error(t('sampleSize.errors.invalidPopulationStd'));
         }
         if (estimatedStd !== undefined && (isNaN(estimatedStd) || estimatedStd <= 0)) {
-          throw new Error('Estimated standard deviation must be greater than 0');
+          throw new Error(t('sampleSize.errors.invalidEstimatedStd'));
         }
 
         sampleSize = calculateSampleSizeForMean(confidenceLevel, margin, {
@@ -96,12 +92,11 @@ const SampleSizeCalculator: React.FC<SampleSizeCalculatorProps> = ({ dataset, ba
           useTDistribution: meanParams.useTDistribution
         });
       } else {
-        // Proportion sample size calculation
         let estimatedProportion: number | undefined;
         if (!proportionParams.useConservativeEstimate) {
           estimatedProportion = parseFloat(proportionParams.estimatedProportion);
           if (isNaN(estimatedProportion) || estimatedProportion < 0 || estimatedProportion > 1) {
-            throw new Error('Estimated proportion must be between 0 and 1');
+            throw new Error(t('sampleSize.errors.invalidProportion'));
           }
         }
 
@@ -113,7 +108,7 @@ const SampleSizeCalculator: React.FC<SampleSizeCalculatorProps> = ({ dataset, ba
 
       setResult(sampleSize);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'An error occurred during calculation');
+      setError(err instanceof Error ? err.message : t('sampleSize.errors.calculationError'));
     }
   };
 
@@ -137,11 +132,11 @@ const SampleSizeCalculator: React.FC<SampleSizeCalculatorProps> = ({ dataset, ba
     <Card maxW="100%" margin="20px auto">
       <CardBody>
         <Text fontSize="2xl" fontWeight="bold" mb={4}>
-          Sample Size Calculator
+          {t('sampleSize.title')}
         </Text>
         
         <Text fontSize="sm" color="gray.600" mb={4}>
-          Calculate the minimum sample size needed to achieve your desired precision based on the specified confidence level and margin of error.
+          {t('sampleSize.description')}
         </Text>
 
         <Divider my={2} />
@@ -149,7 +144,7 @@ const SampleSizeCalculator: React.FC<SampleSizeCalculatorProps> = ({ dataset, ba
         {/* Calculation Type Selection */}
         <FormControl mb={3}>
           <FormLabel fontSize="lg" mb={2}>
-            Calculation Type
+            {t('sampleSize.calculationType')}
           </FormLabel>
           <RadioGroup
             value={calculationType}
@@ -161,11 +156,11 @@ const SampleSizeCalculator: React.FC<SampleSizeCalculatorProps> = ({ dataset, ba
           >
             <Box mr={4}>
               <Radio value="mean" />
-              <Text ml={2} display="inline">Mean</Text>
+              <Text ml={2} display="inline">{t('statistics.mean')}</Text>
             </Box>
             <Box>
               <Radio value="proportion" />
-              <Text ml={2} display="inline">Proportion</Text>
+              <Text ml={2} display="inline">{t('confidenceInterval.proportion')}</Text>
             </Box>
           </RadioGroup>
         </FormControl>
@@ -174,7 +169,7 @@ const SampleSizeCalculator: React.FC<SampleSizeCalculatorProps> = ({ dataset, ba
           {/* Confidence Level */}
           <GridItem>
             <FormControl>
-              <FormLabel>Confidence Level</FormLabel>
+              <FormLabel>{t('sampleSize.confidenceLevel')}</FormLabel>
               <Input
                 type="number"
                 value={confidenceLevel}
@@ -194,7 +189,7 @@ const SampleSizeCalculator: React.FC<SampleSizeCalculatorProps> = ({ dataset, ba
           {/* Margin of Error */}
           <GridItem>
             <FormControl>
-              <FormLabel>Margin of Error</FormLabel>
+              <FormLabel>{t('sampleSize.marginOfError')}</FormLabel>
               <Input
                 type="number"
                 value={marginOfError}
@@ -202,7 +197,7 @@ const SampleSizeCalculator: React.FC<SampleSizeCalculatorProps> = ({ dataset, ba
                   setMarginOfError(e.target.value);
                   setResult(null);
                 }}
-                placeholder={calculationType === 'mean' ? "e.g., 2.5" : "e.g., 0.03"}
+                placeholder={calculationType === 'mean' ? t('sampleSize.errors.invalidMargin') : "e.g., 0.03"}
                 mb={2}
               />
             </FormControl>
@@ -213,13 +208,13 @@ const SampleSizeCalculator: React.FC<SampleSizeCalculatorProps> = ({ dataset, ba
         {calculationType === 'mean' && (
           <Box mt={2} mb={3}>
             <FormLabel fontSize="lg" mb={2}>
-                Mean Parameters
+                {t('sampleSize.meanParameters')}
               </FormLabel>
             
             <Grid templateColumns={{ sm: '1fr 1fr' }} gap={4}>
               <GridItem>
                 <FormControl>
-                  <FormLabel>Population Standard Deviation (when known)</FormLabel>
+                  <FormLabel>{t('sampleSize.populationStd')}</FormLabel>
                   <Input
                     type="number"
                     value={meanParams.populationStd}
@@ -234,7 +229,7 @@ const SampleSizeCalculator: React.FC<SampleSizeCalculatorProps> = ({ dataset, ba
               
               <GridItem>
                 <FormControl>
-                  <FormLabel>Estimated Standard Deviation (when variance unknown)</FormLabel>
+                  <FormLabel>{t('sampleSize.estimatedStd')}</FormLabel>
                   <Input
                     type="number"
                     value={meanParams.estimatedStd}
@@ -244,7 +239,7 @@ const SampleSizeCalculator: React.FC<SampleSizeCalculatorProps> = ({ dataset, ba
                     }}
                     mb={1}
                   />
-                  <FormHelperText>Tip: When variance is unknown, standard deviation can be estimated from pilot studies or historical data</FormHelperText>
+                  <FormHelperText>{t('sampleSize.tipStd')}</FormHelperText>
                 </FormControl>
               </GridItem>
             </Grid>
@@ -259,18 +254,18 @@ const SampleSizeCalculator: React.FC<SampleSizeCalculatorProps> = ({ dataset, ba
                 }}
               />
               <FormLabel htmlFor="use-t-distribution" mb={0} ml={2} display="inline">
-                  Use t-distribution (more accurate for small samples)
+                  {t('sampleSize.useTDistribution')}
                 </FormLabel>
             </Box>
             
             <Alert status="info" mt={2}>
                 <Text fontSize="sm">
-                  When population variance is unknown, you must provide an estimated standard deviation. This can be obtained through:
+                  {t('sampleSize.infoMean')}
                 </Text>
                 <ul style={{ marginTop: '5px', marginBottom: '5px', paddingLeft: '20px', fontSize: 'sm' }}>
-                  <li>Results from previous or similar studies</li>
-                  <li>Pilot study data</li>
-                  <li>If range is known, standard deviation can be roughly estimated as range/6</li>
+                  <li>{t('sampleSize.infoMeanMethods.previousStudies')}</li>
+                  <li>{t('sampleSize.infoMeanMethods.pilotStudy')}</li>
+                  <li>{t('sampleSize.infoMeanMethods.rangeEstimate')}</li>
                 </ul>
               </Alert>
           </Box>
@@ -280,7 +275,7 @@ const SampleSizeCalculator: React.FC<SampleSizeCalculatorProps> = ({ dataset, ba
         {calculationType === 'proportion' && (
           <Box mt={2} mb={3}>
             <FormLabel fontSize="lg" mb={2}>
-                Proportion Parameters
+                {t('sampleSize.proportionParameters')}
               </FormLabel>
             
             <Box mb={2}>
@@ -293,13 +288,13 @@ const SampleSizeCalculator: React.FC<SampleSizeCalculatorProps> = ({ dataset, ba
                 }}
               />
               <FormLabel htmlFor="use-conservative-estimate" mb={0} ml={2} display="inline">
-                  Use conservative estimate (p=0.5, ensures maximum sample size)
+                  {t('sampleSize.useConservativeEstimate')}
                 </FormLabel>
             </Box>
             
             {!proportionParams.useConservativeEstimate && (
               <FormControl>
-                <FormLabel>Estimated Proportion</FormLabel>
+                <FormLabel>{t('sampleSize.estimatedProportion')}</FormLabel>
                 <Input
                   type="number"
                   value={proportionParams.estimatedProportion}
@@ -315,8 +310,7 @@ const SampleSizeCalculator: React.FC<SampleSizeCalculatorProps> = ({ dataset, ba
             
             <Alert status="info" mt={2}>
                 <Text fontSize="sm">
-                  Conservative estimate uses p=0.5 (where variance is maximized), ensuring the calculated sample size is large enough regardless of the actual proportion.
-                  If you have previous research or theoretical basis to estimate the proportion, you can uncheck conservative estimate and enter your estimate.
+                  {t('sampleSize.infoProportion')}
                 </Text>
               </Alert>
           </Box>
@@ -325,10 +319,10 @@ const SampleSizeCalculator: React.FC<SampleSizeCalculatorProps> = ({ dataset, ba
         {/* Action Buttons */}
         <Box mt={3} display="flex" gap={2}>
           <Button colorScheme="blue" onClick={handleCalculate}>
-                Calculate Sample Size
+                {t('sampleSize.calculate')}
               </Button>
               <Button variant="outline" colorScheme="gray" onClick={handleReset}>
-                Reset
+                {t('sampleSize.reset')}
               </Button>
         </Box>
 
@@ -339,21 +333,21 @@ const SampleSizeCalculator: React.FC<SampleSizeCalculatorProps> = ({ dataset, ba
           </Alert>
         )}
 
-        {/* Calculation Result - Optimized Display */}
+        {/* Calculation Result */}
         {result !== null && (
           <Card mt={4} bg="green.50" borderWidth={2} borderColor="green.300">
             <CardBody>
               <Text fontSize="lg" fontWeight="bold" mb={2} color="green.700">
-                Calculation Result ✓
+                {t('sampleSize.result')}
               </Text>
               <Text fontSize="1.5rem" fontWeight="bold" color="green.800" mb={3}>
-                Minimum Required Sample Size: {result}
+                {t('sampleSize.sampleSizeResult', { size: result })}
               </Text>
               <Text fontSize="sm" color="gray.700" mt={1}>
-                Confidence Level: {(confidenceLevel * 100).toFixed(1)}%
+                {t('sampleSize.confidenceLevel')}: {(confidenceLevel * 100).toFixed(1)}%
               </Text>
               <Text fontSize="sm" color="gray.700">
-                Margin of Error: {marginOfError}
+                {t('sampleSize.marginOfError')}: {marginOfError}
               </Text>
             </CardBody>
           </Card>

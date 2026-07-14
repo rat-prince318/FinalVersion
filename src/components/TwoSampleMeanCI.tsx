@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Box, Text, Grid, Card, CardBody, Select, FormControl, FormLabel, Input, Button, Alert, ButtonGroup } from '@chakra-ui/react';
+import { useTranslation } from 'react-i18next';
 import { calculateTwoSampleConfidenceInterval } from '../utils/statistics';
 
 interface TwoSampleMeanCIProps {
@@ -8,7 +9,8 @@ interface TwoSampleMeanCIProps {
 }
 
 function TwoSampleMeanCI({ dataset1 = [], dataset2 = [] }: TwoSampleMeanCIProps) {
-  // Data input state
+  const { t } = useTranslation();
+  
   const [sample1Data, setSample1Data] = useState<string>('');
   const [sample2Data, setSample2Data] = useState<string>('');
   
@@ -21,7 +23,6 @@ function TwoSampleMeanCI({ dataset1 = [], dataset2 = [] }: TwoSampleMeanCIProps)
     }
   }, [dataset1, dataset2]);
   
-  // Parameter input state
   const [sample1Size, setSample1Size] = useState<string>('');
   const [sample1Mean, setSample1Mean] = useState<string>('');
   const [sample1Std, setSample1Std] = useState<string>('');
@@ -29,22 +30,18 @@ function TwoSampleMeanCI({ dataset1 = [], dataset2 = [] }: TwoSampleMeanCIProps)
   const [sample2Mean, setSample2Mean] = useState<string>('');
   const [sample2Std, setSample2Std] = useState<string>('');
   
-  // Analysis options
   const [confidenceLevel, setConfidenceLevel] = useState<string>('0.95');
   const [method, setMethod] = useState<'pooled' | 'welch'>('welch');
   const [inputMode, setInputMode] = useState<'data' | 'stats'>('data');
   
-  // Result state
   const [result, setResult] = useState<any>(null);
   const [error, setError] = useState<string | null>(null);
 
-  // Calculate confidence interval for difference in two sample means
   const calculateTwoSampleCI = (): void => {
     setError(null);
     
     try {
       if (inputMode === 'data') {
-        // Calculate statistics from raw data
         const data1 = sample1Data
           .split(/[\s,]+/)
           .filter(val => val.trim() !== '')
@@ -58,12 +55,11 @@ function TwoSampleMeanCI({ dataset1 = [], dataset2 = [] }: TwoSampleMeanCIProps)
           .filter(val => !isNaN(val));
         
         if (data1.length === 0 || data2.length === 0) {
-          throw new Error('Both samples need valid data');
+          throw new Error(t('errors.validData'));
         }
         
         const confLevel = parseFloat(confidenceLevel);
         
-        // Use our statistical function to calculate confidence interval
         const ciResult = calculateTwoSampleConfidenceInterval(
           data1,
           data2,
@@ -73,17 +69,16 @@ function TwoSampleMeanCI({ dataset1 = [], dataset2 = [] }: TwoSampleMeanCIProps)
         
         setResult(ciResult);
       } else {
-        // Handling for statistical input mode can be added later
         throw new Error('Statistical input mode not yet implemented');
       }
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Calculation error');
+      setError(err instanceof Error ? err.message : t('errors.parseError'));
     }
   };
 
   return (
     <Box>
-      <Text fontSize="lg" mb={4}>Two-Sample Mean Difference Confidence Interval Calculation</Text>
+      <Text fontSize="lg" mb={4}>{t('confidenceInterval.twoSampleMean')}</Text>
       
       <Card mb={6}>
         <CardBody>
@@ -95,7 +90,7 @@ function TwoSampleMeanCI({ dataset1 = [], dataset2 = [] }: TwoSampleMeanCIProps)
               colorScheme="blue"
               onClick={() => setInputMode('data')}
             >
-              Input Raw Data
+              {t('dataInput.directInput')}
             </Button>
             <Button 
               px={4} 
@@ -104,18 +99,18 @@ function TwoSampleMeanCI({ dataset1 = [], dataset2 = [] }: TwoSampleMeanCIProps)
               colorScheme="blue"
               onClick={() => setInputMode('stats')}
             >
-              Input Statistics
+              {t('statistics.basicStats')}
             </Button>
           </ButtonGroup>
           
           {inputMode === 'data' && (
             <Grid templateColumns={{ base: '1fr', md: 'repeat(2, 1fr)' }} gap={6}>
               <FormControl>
-                <FormLabel>Sample 1 Data (separated by spaces or commas)</FormLabel>
+                <FormLabel>{t('dataInput.sample1')} ({t('common.data')})</FormLabel>
                 <textarea
                   value={sample1Data}
                   onChange={(e) => setSample1Data(e.target.value)}
-                  placeholder="Example: 1.2 3.4 5.6 7.8 9.0"
+                  placeholder={t('dataInput.enterData')}
                   style={{
                     width: '100%',
                     height: '100px',
@@ -128,11 +123,11 @@ function TwoSampleMeanCI({ dataset1 = [], dataset2 = [] }: TwoSampleMeanCIProps)
               </FormControl>
               
               <FormControl>
-                <FormLabel>Sample 2 Data (separated by spaces or commas)</FormLabel>
+                <FormLabel>{t('dataInput.sample2')} ({t('common.data')})</FormLabel>
                 <textarea
                   value={sample2Data}
                   onChange={(e) => setSample2Data(e.target.value)}
-                  placeholder="Example: 2.1 4.3 6.5 8.7 10.9"
+                  placeholder={t('dataInput.enterData')}
                   style={{
                     width: '100%',
                     height: '100px',
@@ -149,33 +144,33 @@ function TwoSampleMeanCI({ dataset1 = [], dataset2 = [] }: TwoSampleMeanCIProps)
           {inputMode === 'stats' && (
             <Grid templateColumns={{ base: '1fr', md: 'repeat(2, 1fr)' }} gap={6}>
               <Box>
-                <Text fontWeight="medium" mb={2}>Sample 1 Statistics</Text>
+                <Text fontWeight="medium" mb={2}>{t('dataInput.sample1')} {t('statistics.basicStats')}</Text>
                 <FormControl mb={2}>
-                  <FormLabel fontSize="sm">Sample Size (n₁)</FormLabel>
+                  <FormLabel fontSize="sm">{t('statistics.sampleSize')} (n₁)</FormLabel>
                   <Input type="number" value={sample1Size} onChange={(e) => setSample1Size(e.target.value)} min="1" />
                 </FormControl>
                 <FormControl mb={2}>
-                  <FormLabel fontSize="sm">Sample Mean (x̄₁)</FormLabel>
+                  <FormLabel fontSize="sm">{t('statistics.mean')} (x̄₁)</FormLabel>
                   <Input type="number" step="any" value={sample1Mean} onChange={(e) => setSample1Mean(e.target.value)} />
                 </FormControl>
                 <FormControl>
-                  <FormLabel fontSize="sm">Sample Standard Deviation (s₁)</FormLabel>
+                  <FormLabel fontSize="sm">{t('statistics.standardDeviation')} (s₁)</FormLabel>
                   <Input type="number" step="any" value={sample1Std} onChange={(e) => setSample1Std(e.target.value)} min="0" />
                 </FormControl>
               </Box>
               
               <Box>
-                <Text fontWeight="medium" mb={2}>Sample 2 Statistics</Text>
+                <Text fontWeight="medium" mb={2}>{t('dataInput.sample2')} {t('statistics.basicStats')}</Text>
                 <FormControl mb={2}>
-                  <FormLabel fontSize="sm">Sample Size (n₂)</FormLabel>
+                  <FormLabel fontSize="sm">{t('statistics.sampleSize')} (n₂)</FormLabel>
                   <Input type="number" value={sample2Size} onChange={(e) => setSample2Size(e.target.value)} min="1" />
                 </FormControl>
                 <FormControl mb={2}>
-                  <FormLabel fontSize="sm">Sample Mean (x̄₂)</FormLabel>
+                  <FormLabel fontSize="sm">{t('statistics.mean')} (x̄₂)</FormLabel>
                   <Input type="number" step="any" value={sample2Mean} onChange={(e) => setSample2Mean(e.target.value)} />
                 </FormControl>
                 <FormControl>
-                  <FormLabel fontSize="sm">Sample Standard Deviation (s₂)</FormLabel>
+                  <FormLabel fontSize="sm">{t('statistics.standardDeviation')} (s₂)</FormLabel>
                   <Input type="number" step="any" value={sample2Std} onChange={(e) => setSample2Std(e.target.value)} min="0" />
                 </FormControl>
               </Box>
@@ -184,7 +179,7 @@ function TwoSampleMeanCI({ dataset1 = [], dataset2 = [] }: TwoSampleMeanCIProps)
           
           <Grid templateColumns={{ base: '1fr', md: 'repeat(2, 1fr)' }} gap={4} mt={6}>
             <FormControl>
-              <FormLabel>Confidence Level</FormLabel>
+              <FormLabel>{t('confidenceInterval.confidenceLevel')}</FormLabel>
               <Select value={confidenceLevel} onChange={(e) => setConfidenceLevel(e.target.value)}>
                 <option value="0.90">90%</option>
                 <option value="0.95">95%</option>
@@ -193,19 +188,19 @@ function TwoSampleMeanCI({ dataset1 = [], dataset2 = [] }: TwoSampleMeanCIProps)
             </FormControl>
             
             <FormControl>
-              <FormLabel>Variance Treatment Method</FormLabel>
+              <FormLabel>{t('confidenceInterval.varianceTreatment')}</FormLabel>
               <Select
                 value={method}
                 onChange={(e) => setMethod(e.target.value as 'pooled' | 'welch')}
               >
-                <option value="pooled">Assuming Equal Variances (Pooled)</option>
-                <option value="welch">Not Assuming Equal Variances (Welch)</option>
+                <option value="pooled">{t('confidenceInterval.equalVarPooled')}</option>
+                <option value="welch">{t('confidenceInterval.unequalVarWelch')}</option>
               </Select>
             </FormControl>
           </Grid>
           
           <Button onClick={calculateTwoSampleCI} mt={6} colorScheme="blue" width="100%">
-            Calculate Confidence Interval
+            {t('common.generate')} {t('confidenceInterval.title')}
           </Button>
         </CardBody>
       </Card>
@@ -218,42 +213,42 @@ function TwoSampleMeanCI({ dataset1 = [], dataset2 = [] }: TwoSampleMeanCIProps)
       
       {result && (
         <Box mt={6}>
-          <Text fontSize="lg" fontWeight="bold" mb={4}>Calculation Results</Text>
+          <Text fontSize="lg" fontWeight="bold" mb={4}>{t('statistics.basicStats')}</Text>
           
           <Grid templateColumns={{ base: '1fr', md: 'repeat(2, 1fr)' }} gap={4}>
             <Card>
               <CardBody>
-                <Text fontSize="sm" color="gray.500">Mean Difference</Text>
+                <Text fontSize="sm" color="gray.500">{t('statistics.mean')} {t('statistics.range')}</Text>
                 <Text fontSize="2xl" fontWeight="bold">{result.meanDiff.toFixed(4)}</Text>
               </CardBody>
             </Card>
             <Card>
               <CardBody>
-                <Text fontSize="sm" color="gray.500">CI Lower Bound</Text>
+                <Text fontSize="sm" color="gray.500">{t('confidenceInterval.lowerBound', { level: Math.round(parseFloat(confidenceLevel) * 100) })}</Text>
                 <Text fontSize="2xl" fontWeight="bold">{result.lower.toFixed(4)}</Text>
               </CardBody>
             </Card>
             <Card>
               <CardBody>
-                <Text fontSize="sm" color="gray.500">CI Upper Bound</Text>
+                <Text fontSize="sm" color="gray.500">{t('confidenceInterval.upperBound', { level: Math.round(parseFloat(confidenceLevel) * 100) })}</Text>
                 <Text fontSize="2xl" fontWeight="bold">{result.upper.toFixed(4)}</Text>
               </CardBody>
             </Card>
             <Card>
               <CardBody>
-                <Text fontSize="sm" color="gray.500">Margin of Error</Text>
+                <Text fontSize="sm" color="gray.500">{t('statistics.marginOfError')}</Text>
                 <Text fontSize="2xl" fontWeight="bold">{result.marginOfError.toFixed(4)}</Text>
               </CardBody>
             </Card>
             <Card>
               <CardBody>
-                <Text fontSize="sm" color="gray.500">Calculation Method</Text>
+                <Text fontSize="sm" color="gray.500">{t('statistics.calculationMethod')}</Text>
                 <Text fontSize="lg" fontWeight="bold">{result.method}</Text>
               </CardBody>
             </Card>
             <Card>
               <CardBody>
-                <Text fontSize="sm" color="gray.500">Critical Value</Text>
+                <Text fontSize="sm" color="gray.500">{t('statistics.criticalValue')}</Text>
                 <Text fontSize="2xl" fontWeight="bold">{result.criticalValue.toFixed(4)}</Text>
               </CardBody>
             </Card>

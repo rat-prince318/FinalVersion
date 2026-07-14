@@ -1,12 +1,13 @@
 import React, { useState } from 'react';
 import { Box, Text, Grid, Card, CardBody, Select, FormControl, FormLabel, Switch, Input, Button, Alert, AlertIcon, AlertDescription } from '@chakra-ui/react';
+import { useTranslation } from 'react-i18next';
 import { calculateConfidenceInterval, calculateMean } from '../utils/statistics';
 import { BasicStats } from '../types';
 
 interface OneSampleMeanCIProps {
   dataset?: number[];
-  isGeneratedDataset?: boolean; // New flag indicating if the dataset is system-generated
-  distributionInfo?: { // Dataset distribution information
+  isGeneratedDataset?: boolean;
+  distributionInfo?: {
     type: string;
     name: string;
     parameters: Record<string, number>;
@@ -15,15 +16,15 @@ interface OneSampleMeanCIProps {
 }
 
 function OneSampleMeanCI({ dataset = [], isGeneratedDataset = false, distributionInfo, basicStats }: OneSampleMeanCIProps) {
-  // Confidence interval calculation options
+  const { t } = useTranslation();
+  
   const [ciOptions, setCiOptions] = useState({
     confidenceLevel: 0.95,
-    isNormal: false, // Default: not assuming normal distribution
-    knownVariance: false, // Default: unknown variance
+    isNormal: false,
+    knownVariance: false,
     populationVariance: 0
   });
   
-  // Calculate sample variance (for auto-filling when dataset is generated)
   const calculateSampleVariance = (data: number[]) => {
     if (data.length <= 1) return 0;
     const mean = (basicStats?.mean || data.reduce((sum, val) => sum + val, 0) / data.length);
@@ -31,31 +32,26 @@ function OneSampleMeanCI({ dataset = [], isGeneratedDataset = false, distributio
     return variance;
   };
   
-  // Check if dataset is empty
   const isDatasetEmpty = dataset.length === 0 && (!basicStats || basicStats.count === 0);
   
-  // Get sample statistics, prioritize passed-in statistics
   const sampleSize = basicStats?.count || dataset.length || 0;
   const sampleMean = basicStats?.mean || (dataset.length > 0 ? calculateMean(dataset) : 0);
   const sampleVariance = basicStats?.variance || (sampleSize > 1 && dataset.length > 0 ? calculateSampleVariance(dataset) : 0);
   
-  // When dataset changes and distribution info is available, set parameters based on actual distribution type
   React.useEffect(() => {
     if (isGeneratedDataset && dataset.length > 0 && distributionInfo) {
       const variance = calculateSampleVariance(dataset);
-      // Only assume population is normally distributed when distribution type is normal
       const isActualNormal = distributionInfo.type === 'normal';
       
       setCiOptions(prev => ({
         ...prev,
         populationVariance: variance,
         isNormal: isActualNormal,
-        knownVariance: true // For generated data, we know the distribution parameters
+        knownVariance: true
       }));
     }
   }, [dataset, isGeneratedDataset, distributionInfo]);
   
-  // Calculation result state
   const [result, setResult] = useState<{
     mean: number;
     confidenceInterval: { 
@@ -70,13 +66,11 @@ function OneSampleMeanCI({ dataset = [], isGeneratedDataset = false, distributio
   const handleCalculate = () => {
     try {
       if (dataset.length === 0) {
-        throw new Error('Please select or generate a dataset above first');
+        throw new Error(t('errors.validData'));
       }
       
-      // Calculate mean, prefer using passed statistics
       const mean = sampleMean;
       
-      // Calculate confidence interval
       const confidenceInterval = calculateConfidenceInterval(
         dataset,
         ciOptions.confidenceLevel,
@@ -92,17 +86,16 @@ function OneSampleMeanCI({ dataset = [], isGeneratedDataset = false, distributio
           confidenceInterval
         });
     } catch (error) {
-      alert(error instanceof Error ? error.message : 'An error occurred during calculation');
+      alert(error instanceof Error ? error.message : t('errors.parseError'));
     }
   };
 
-  // If dataset is empty, show prompt
   if (isDatasetEmpty) {
     return (
       <Box p={4}>
         <Alert status="info" mt={4}>
           <AlertIcon />
-          <AlertDescription>Please upload or generate data first, then calculate confidence intervals.</AlertDescription>
+          <AlertDescription>{t('errors.validData')}</AlertDescription>
         </Alert>
       </Box>
     );
@@ -110,12 +103,12 @@ function OneSampleMeanCI({ dataset = [], isGeneratedDataset = false, distributio
   
   return (
     <Box>
-      <Text fontSize="lg" mb={4}>One-Sample Mean Confidence Interval Calculation</Text>
+      <Text fontSize="lg" mb={4}>{t('confidenceInterval.oneSampleMean')}</Text>
       
       {dataset.length === 0 && (
         <Alert status="warning" mb={4}>
           <AlertIcon />
-          Please select or generate a dataset in the data input and generation area above
+          {t('errors.validData')}
         </Alert>
       )}
       
@@ -123,7 +116,7 @@ function OneSampleMeanCI({ dataset = [], isGeneratedDataset = false, distributio
         <CardBody>
           <Grid templateColumns={{ base: '1fr', md: 'repeat(2, 1fr)' }} gap={4} mb={4}>
             <FormControl>
-              <FormLabel>Confidence Level</FormLabel>
+              <FormLabel>{t('confidenceInterval.confidenceLevel')}</FormLabel>
               <Select
                 value={ciOptions.confidenceLevel}
                 onChange={(e) => setCiOptions({ ...ciOptions, confidenceLevel: parseFloat(e.target.value) })}
@@ -135,11 +128,10 @@ function OneSampleMeanCI({ dataset = [], isGeneratedDataset = false, distributio
               </Select>
             </FormControl>
             
-            {/* Only show manual settings when not using generated dataset */}
             {!isGeneratedDataset && (
               <>
                 <FormControl>
-                  <FormLabel>Population is Normally Distributed</FormLabel>
+                  <FormLabel>{t('confidenceInterval.normal')}</FormLabel>
                   <Switch
                     isChecked={ciOptions.isNormal}
                     onChange={(e) => setCiOptions({ ...ciOptions, isNormal: e.target.checked })}
@@ -147,7 +139,7 @@ function OneSampleMeanCI({ dataset = [], isGeneratedDataset = false, distributio
                 </FormControl>
                 
                 <FormControl>
-                  <FormLabel>Known Population Variance</FormLabel>
+                  <FormLabel>{t('confidenceInterval.knownVariance')}</FormLabel>
                   <Switch
                     isChecked={ciOptions.knownVariance}
                     onChange={(e) => setCiOptions({ ...ciOptions, knownVariance: e.target.checked })}
@@ -156,7 +148,7 @@ function OneSampleMeanCI({ dataset = [], isGeneratedDataset = false, distributio
                 
                 {ciOptions.knownVariance && (
                   <FormControl>
-                    <FormLabel>Population Variance Value</FormLabel>
+                    <FormLabel>{t('confidenceInterval.populationVariance')}</FormLabel>
                     <Input
                       type="number"
                       min="0"
@@ -169,18 +161,16 @@ function OneSampleMeanCI({ dataset = [], isGeneratedDataset = false, distributio
               </>
             )}
             
-            {/* For generated dataset, show actual distribution info */}
             {isGeneratedDataset && dataset.length > 0 && distributionInfo && (
               <FormControl>
-                <FormLabel>Dataset Distribution Information</FormLabel>
-                <Box p={3} bg="green.50" borderRadius="md" borderWidth={1} borderColor="green.200">
-                  <Text>• Distribution Type: {distributionInfo.name}</Text>
-                  <Text>• {distributionInfo.type === 'normal' ? 'Assuming population is normally distributed' : 'Using t-distribution or normal approximation based on Central Limit Theorem'}</Text>
-                  <Text>• Automatically using sample variance: {ciOptions.populationVariance.toFixed(6)}</Text>
-                  <Text>• Sample Size: {sampleSize}</Text>
-                  <Text>• Sample Mean: {sampleMean.toFixed(4)}</Text>
-                  <Text>• Sample Variance: {sampleVariance.toFixed(6)}</Text>
-                  {/* Display distribution parameters */}
+                  <FormLabel>{t('confidenceInterval.datasetDistInfo')}</FormLabel>
+                  <Box p={3} bg="green.50" borderRadius="md" borderWidth={1} borderColor="green.200">
+                    <Text>• {t('confidenceInterval.distType')}: {distributionInfo.name}</Text>
+                    <Text>• {distributionInfo.type === 'normal' ? t('confidenceInterval.normal') : t('confidenceInterval.tDistributionApprox')}</Text>
+                  <Text>• {t('statistics.variance')}: {ciOptions.populationVariance.toFixed(6)}</Text>
+                  <Text>• {t('statistics.sampleSize')}: {sampleSize}</Text>
+                  <Text>• {t('statistics.mean')}: {sampleMean.toFixed(4)}</Text>
+                  <Text>• {t('statistics.variance')}: {sampleVariance.toFixed(6)}</Text>
                   {Object.entries(distributionInfo.parameters).map(([key, value]) => (
                     <Text key={key}>• {key}: {value.toFixed(4)}</Text>
                   ))}
@@ -195,7 +185,7 @@ function OneSampleMeanCI({ dataset = [], isGeneratedDataset = false, distributio
             width="100%"
             disabled={dataset.length === 0}
           >
-            Calculate Confidence Interval
+            {t('common.generate')} {t('confidenceInterval.title')}
           </Button>
         </CardBody>
       </Card>
@@ -204,37 +194,37 @@ function OneSampleMeanCI({ dataset = [], isGeneratedDataset = false, distributio
         <Grid templateColumns={{ base: '1fr', md: 'repeat(2, 1fr)', lg: 'repeat(4, 1fr)' }} gap={4}>
           <Card>
             <CardBody>
-              <Text fontSize="sm" color="gray.500">Sample Mean</Text>
+              <Text fontSize="sm" color="gray.500">{t('statistics.mean')}</Text>
               <Text fontSize="2xl" fontWeight="bold">{result.mean.toFixed(4)}</Text>
             </CardBody>
           </Card>
           <Card>
             <CardBody>
-              <Text fontSize="sm" color="gray.500">CI Lower Bound</Text>
+              <Text fontSize="sm" color="gray.500">{t('confidenceInterval.lowerBound', { level: Math.round(ciOptions.confidenceLevel * 100) })}</Text>
               <Text fontSize="2xl" fontWeight="bold">{result.confidenceInterval.lower.toFixed(4)}</Text>
             </CardBody>
           </Card>
           <Card>
             <CardBody>
-              <Text fontSize="sm" color="gray.500">CI Upper Bound</Text>
+              <Text fontSize="sm" color="gray.500">{t('confidenceInterval.upperBound', { level: Math.round(ciOptions.confidenceLevel * 100) })}</Text>
               <Text fontSize="2xl" fontWeight="bold">{result.confidenceInterval.upper.toFixed(4)}</Text>
             </CardBody>
           </Card>
           <Card>
             <CardBody>
-              <Text fontSize="sm" color="gray.500">Margin of Error</Text>
+              <Text fontSize="sm" color="gray.500">{t('statistics.marginOfError')}</Text>
               <Text fontSize="2xl" fontWeight="bold">{result.confidenceInterval.marginOfError.toFixed(4)}</Text>
             </CardBody>
           </Card>
           <Card>
             <CardBody>
-              <Text fontSize="sm" color="gray.500">Calculation Method</Text>
+              <Text fontSize="sm" color="gray.500">{t('statistics.calculationMethod')}</Text>
               <Text fontSize="lg" fontWeight="bold">{result.confidenceInterval.method}</Text>
             </CardBody>
           </Card>
           <Card>
             <CardBody>
-              <Text fontSize="sm" color="gray.500">Critical Value</Text>
+              <Text fontSize="sm" color="gray.500">{t('statistics.criticalValue')}</Text>
               <Text fontSize="2xl" fontWeight="bold">{result.confidenceInterval.criticalValue.toFixed(4)}</Text>
             </CardBody>
           </Card>

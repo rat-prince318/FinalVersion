@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Box, Text, Grid, Select, FormControl, FormLabel, Input, Button, Card, CardBody, Alert, AlertIcon, Stack, Divider } from '@chakra-ui/react';
+import { useTranslation } from 'react-i18next';
 import { calculateZTestPower, calculateTTestPower, generatePowerFunctionData, calculateSampleSizeForPower } from '../utils/statistics';
 import PowerFunctionChart from './PowerFunctionChart';
 
@@ -8,6 +9,7 @@ interface PowerFunctionProps {
 }
 
 const PowerFunction: React.FC<PowerFunctionProps> = ({ dataset }) => {
+  const { t } = useTranslation();
   // Power function parameters
   const [mu0, setMu0] = useState<number>(0);
   const [sigma, setSigma] = useState<number>(1);
@@ -33,12 +35,12 @@ const PowerFunction: React.FC<PowerFunctionProps> = ({ dataset }) => {
       const data = generatePowerFunctionData(mu0, sigma, sampleSize, alphaNum, testType, hypothesisTestType);
       setPowerData(data);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'An error occurred while generating power function data');
+      setError(err instanceof Error ? err.message : t('powerFunction.errorGeneratingData'));
     }
-  }, [mu0, sigma, sampleSize, alpha, testType, hypothesisTestType]);
+  }, [mu0, sigma, sampleSize, alpha, testType, hypothesisTestType, t]);
 
   // Calculate power for specific effect size
-  const calculatePower = () => {
+  const calculatePowerFn = () => {
     try {
       setError(null);
       const alphaNum = parseFloat(alpha);
@@ -48,12 +50,12 @@ const PowerFunction: React.FC<PowerFunctionProps> = ({ dataset }) => {
         : calculateTTestPower(mu0, mu1, sigma, sampleSize, alphaNum, testType);
       setCurrentPower(power);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'An error occurred while calculating power');
+      setError(err instanceof Error ? err.message : t('powerFunction.errorCalculatingPower'));
     }
   };
 
   // Calculate required sample size for desired power
-  const calculateRequiredSampleSize = () => {
+  const calculateRequiredSampleSizeFn = () => {
     try {
       setError(null);
       const alphaNum = parseFloat(alpha);
@@ -61,7 +63,7 @@ const PowerFunction: React.FC<PowerFunctionProps> = ({ dataset }) => {
       const n = calculateSampleSizeForPower(mu0, mu0 + effectSize, sigma, alphaNum, beta, testType);
       setRequiredSampleSize(n);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'An error occurred while calculating sample size');
+      setError(err instanceof Error ? err.message : t('powerFunction.errorCalculatingSampleSize'));
     }
   };
 
@@ -74,115 +76,115 @@ const PowerFunction: React.FC<PowerFunctionProps> = ({ dataset }) => {
 
   return (
     <Box>
-      <Text fontSize="xl" fontWeight="bold" mb={4}>Power Function Analysis</Text>
+      <Text fontSize="xl" fontWeight="bold" mb={4}>{t('powerFunction.powerFunctionAnalysis')}</Text>
       
       <Card mb={6}>
         <CardBody>
-          <Text fontSize="lg" fontWeight="semibold" mb={4}>Parameters</Text>
+          <Text fontSize="lg" fontWeight="semibold" mb={4}>{t('powerFunction.parameters')}</Text>
           
           <Grid templateColumns={{ base: '1fr', md: 'repeat(2, 1fr)', lg: 'repeat(3, 1fr)' }} gap={4}>
             {/* Hypothesis test type */}
             <FormControl>
-              <FormLabel>Hypothesis Test Type</FormLabel>
+              <FormLabel>{t('powerFunction.hypothesisTestType')}</FormLabel>
               <Select 
                 value={hypothesisTestType} 
                 onChange={(e) => setHypothesisTestType(e.target.value as 'z' | 't')}
               >
-                <option value="z">Z-test</option>
-                <option value="t">T-test</option>
+                <option value="z">{t('powerFunction.zTest')}</option>
+                <option value="t">{t('powerFunction.tTest')}</option>
               </Select>
             </FormControl>
 
             {/* Null hypothesis mean */}
             <FormControl>
-              <FormLabel>Null Hypothesis Mean (μ₀)</FormLabel>
+              <FormLabel>{t('powerFunction.nullHypothesisMean')}</FormLabel>
               <Input 
                 type="number" 
                 value={mu0} 
                 onChange={(e) => setMu0(parseFloat(e.target.value) || 0)} 
-                placeholder="Enter null hypothesis mean"
+                placeholder={t('powerFunction.enterNullMean')}
               />
             </FormControl>
 
             {/* Population standard deviation */}
             <FormControl>
-              <FormLabel>Population Standard Deviation (σ)</FormLabel>
+              <FormLabel>{t('powerFunction.populationStandardDeviation')}</FormLabel>
               <Input 
                 type="number" 
                 min="0" 
                 step="any" 
                 value={sigma} 
                 onChange={(e) => setSigma(parseFloat(e.target.value) || 0)} 
-                placeholder="Enter population standard deviation"
+                placeholder={t('powerFunction.enterPopulationStd')}
               />
             </FormControl>
 
             {/* Sample size */}
             <FormControl>
-              <FormLabel>Sample Size (n)</FormLabel>
+              <FormLabel>{t('powerFunction.sampleSizeN')}</FormLabel>
               <Input 
                 type="number" 
                 min="1" 
                 value={sampleSize} 
                 onChange={(e) => setSampleSize(parseInt(e.target.value) || 1)} 
-                placeholder="Enter sample size"
+                placeholder={t('powerFunction.enterSampleSize')}
               />
             </FormControl>
 
             {/* Significance level */}
             <FormControl>
-              <FormLabel>Significance Level (α)</FormLabel>
+              <FormLabel>{t('powerFunction.significanceLevelAlpha')}</FormLabel>
               <Select 
                 value={alpha} 
                 onChange={(e) => setAlpha(e.target.value)}
               >
-                <option value="0.01">0.01 (99% confidence level)</option>
-                <option value="0.05">0.05 (95% confidence level)</option>
-                <option value="0.10">0.10 (90% confidence level)</option>
+                <option value="0.01">{t('powerFunction.confidenceLevel99')}</option>
+                <option value="0.05">{t('powerFunction.confidenceLevel95')}</option>
+                <option value="0.10">{t('powerFunction.confidenceLevel90')}</option>
               </Select>
             </FormControl>
 
             {/* Test type */}
             <FormControl>
-              <FormLabel>Test Type</FormLabel>
+              <FormLabel>{t('powerFunction.testType')}</FormLabel>
               <Select 
                 value={testType} 
                 onChange={(e) => setTestType(e.target.value as 'two' | 'left' | 'right')}
               >
-                <option value="two">Two-tailed Test (μ ≠ μ₀)</option>
-                <option value="left">Left-tailed Test (μ &lt; μ₀)</option>
-                <option value="right">Right-tailed Test (μ &gt; μ₀)</option>
+                <option value="two">{t('powerFunction.twoTailedTest')}</option>
+                <option value="left">{t('powerFunction.leftTailedTest')}</option>
+                <option value="right">{t('powerFunction.rightTailedTest')}</option>
               </Select>
             </FormControl>
 
             {/* Effect size */}
             <FormControl>
-              <FormLabel>Effect Size (μ₁ - μ₀)</FormLabel>
+              <FormLabel>{t('powerFunction.effectSize')}</FormLabel>
               <Input 
                 type="number" 
                 step="any" 
                 value={effectSize} 
                 onChange={(e) => setEffectSize(parseFloat(e.target.value) || 0)} 
-                placeholder="Enter effect size"
+                placeholder={t('powerFunction.enterEffectSize')}
               />
             </FormControl>
           </Grid>
 
           <Stack direction={{ base: 'column', sm: 'row' }} spacing={4} mt={4}>
             <Button 
-              onClick={calculatePower} 
+              onClick={calculatePowerFn} 
               colorScheme="blue" 
               flex={1}
             >
-              Calculate Power
+              {t('powerFunction.calculatePower')}
             </Button>
             
             <Button 
-              onClick={calculateRequiredSampleSize} 
+              onClick={calculateRequiredSampleSizeFn} 
               colorScheme="green" 
               flex={1}
             >
-              Calculate Required Sample Size
+              {t('powerFunction.calculateRequiredSampleSize')}
             </Button>
           </Stack>
         </CardBody>
@@ -200,25 +202,25 @@ const PowerFunction: React.FC<PowerFunctionProps> = ({ dataset }) => {
       {(currentPower !== null || requiredSampleSize !== null) && (
         <Card mb={6}>
           <CardBody>
-            <Text fontSize="lg" fontWeight="bold" mb={4}>Analysis Results</Text>
+            <Text fontSize="lg" fontWeight="bold" mb={4}>{t('powerFunction.analysisResults')}</Text>
             
             <Stack spacing={3}>
               {currentPower !== null && (
                 <Box>
-                  <Text fontWeight="bold">Power for Given Effect Size:</Text>
+                  <Text fontWeight="bold">{t('powerFunction.powerForGivenEffectSize')}</Text>
                   <Text fontSize="xl" color="blue.600">{currentPower.toFixed(4)}</Text>
                   <Text fontSize="sm" color="gray.500">
-                    For effect size (μ₁ - μ₀) = {effectSize}, sample size n = {sampleSize}, and significance level α = {alpha}
+                    {t('powerFunction.forEffectSize', { effectSize, sampleSize, alpha })}
                   </Text>
                 </Box>
               )}
               
               {requiredSampleSize !== null && (
                 <Box>
-                  <Text fontWeight="bold">Required Sample Size for 80% Power:</Text>
+                  <Text fontWeight="bold">{t('powerFunction.requiredSampleSize80')}</Text>
                   <Text fontSize="xl" color="green.600">{requiredSampleSize}</Text>
                   <Text fontSize="sm" color="gray.500">
-                    For effect size (μ₁ - μ₀) = {effectSize}, significance level α = {alpha}, and desired power 0.80
+                    {t('powerFunction.forEffectSizeAlphaPower', { effectSize, alpha })}
                   </Text>
                 </Box>
               )}

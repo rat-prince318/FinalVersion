@@ -1,15 +1,17 @@
 import { useState, useEffect } from 'react';
 import { Box, Text, Card, CardBody, Grid, Select, Button, Alert, AlertIcon, AlertDescription } from '@chakra-ui/react';
+import { useTranslation } from 'react-i18next';
 import { calculateMLE, calculateMoM } from '../utils/statistics';
 import { EstimationResult, MLEMoMTabProps } from '../types';
 
 function MLEMoMTab({ dataset, distribution, basicStats, isGeneratedDataset }: MLEMoMTabProps) {
+  const { t } = useTranslation();
+  
   const [selectedDistribution, setSelectedDistribution] = useState<string>('normal');
   const [estimationResults, setEstimationResults] = useState<EstimationResult[]>([]);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    // Automatically update selected distribution when dataset or distribution changes
     if (distribution && dataset.length > 0) {
       setSelectedDistribution(distribution.type || 'normal');
       handleEstimate();
@@ -22,7 +24,7 @@ function MLEMoMTab({ dataset, distribution, basicStats, isGeneratedDataset }: ML
 
   const handleEstimate = () => {
     if (dataset.length === 0) {
-      setError('Please import or generate data first');
+      setError(t('errors.validData'));
       return;
     }
 
@@ -30,34 +32,31 @@ function MLEMoMTab({ dataset, distribution, basicStats, isGeneratedDataset }: ML
     const results: EstimationResult[] = [];
 
     try {
-      // Calculate MLE estimates
       const mleParams = calculateMLE(dataset, selectedDistribution, basicStats);
       results.push({
-        method: 'Maximum Likelihood Estimation (MLE)',
+        method: t('mleMom.mle'),
         params: mleParams
       });
 
-      // Calculate MoM estimates
       const momParams = calculateMoM(dataset, selectedDistribution, basicStats);
       results.push({
-        method: 'Method of Moments (MoM)',
+        method: t('mleMom.mom'),
         params: momParams
       });
 
       setEstimationResults(results);
     } catch (err) {
-      setError(`Estimation calculation failed: ${err instanceof Error ? err.message : 'Unknown error'}`);
+      setError(t('mleMom.estimationFailed', { error: err instanceof Error ? err.message : 'Unknown error' }));
     }
   };
 
-  // Distribution options
   const distributionOptions = [
-    { value: 'normal', label: 'Normal Distribution' },
-    { value: 'exponential', label: 'Exponential Distribution' },
-    { value: 'gamma', label: 'Gamma Distribution' },
+    { value: 'normal', label: t('distribution.normal') },
+    { value: 'exponential', label: t('distribution.exponential') },
+    { value: 'gamma', label: t('distribution.gamma') },
     { value: 'beta', label: 'Beta Distribution' },
-    { value: 'poisson', label: 'Poisson Distribution' },
-    { value: 'uniform', label: 'Uniform Distribution' }
+    { value: 'poisson', label: t('distribution.poisson') },
+    { value: 'uniform', label: t('distribution.uniform') }
   ];
 
   return (
@@ -66,12 +65,11 @@ function MLEMoMTab({ dataset, distribution, basicStats, isGeneratedDataset }: ML
         <Box>
           <Card>
             <CardBody>
-              <Text fontSize="lg" fontWeight="bold" mb={4}>Parameter Estimation</Text>
+              <Text fontSize="lg" fontWeight="bold" mb={4}>{t('mleMom.title')}</Text>
               
-              {/* Only show manual selection option when distribution is unknown */}
               {!isGeneratedDataset ? (
                 <Box mb={4}>
-                  <Text mb={2}>Select Distribution Type:</Text>
+                  <Text mb={2}>{t('mleMom.selectDistribution')}:</Text>
                   <Select
                     value={selectedDistribution}
                     onChange={handleDistributionChange}
@@ -86,8 +84,8 @@ function MLEMoMTab({ dataset, distribution, basicStats, isGeneratedDataset }: ML
                 </Box>
               ) : distribution ? (
                 <Box mb={4} bg="blue.50" p={4} borderRadius="md">
-                  <Text fontWeight="medium" mb={2}>Auto-detection Result:</Text>
-                  <Text fontSize="sm" mb={1}>Distribution Type: {distribution.name}</Text>
+                  <Text fontWeight="medium" mb={2}>{t('mleMom.autoDetection')}</Text>
+                  <Text fontSize="sm" mb={1}>{t('mleMom.selectDistribution')}: {distribution.name}</Text>
                   {distribution.parameters && Object.entries(distribution.parameters).length > 0 && (
                     <Text fontSize="sm" mt={1}>Parameters: {Object.entries(distribution.parameters)
                       .map(([key, value]) => `${key}: ${value}`)
@@ -95,7 +93,7 @@ function MLEMoMTab({ dataset, distribution, basicStats, isGeneratedDataset }: ML
                     </Text>
                   )}
                   <Text fontSize="sm" mt={2} color="blue.700">
-                    Using {distribution.name} for Maximum Likelihood Estimation and Method of Moments
+                    {t('mleMom.usingForEstimation', { distribution: distribution.name })}
                   </Text>
                 </Box>
               ) : null}
@@ -105,7 +103,7 @@ function MLEMoMTab({ dataset, distribution, basicStats, isGeneratedDataset }: ML
                 width="full"
                 onClick={handleEstimate}
               >
-                Perform Estimation
+                {t('mleMom.performEstimation')}
               </Button>
             </CardBody>
           </Card>
@@ -148,7 +146,7 @@ function MLEMoMTab({ dataset, distribution, basicStats, isGeneratedDataset }: ML
           {estimationResults.length === 0 && !error && (
             <Alert status="info">
               <AlertIcon />
-              <AlertDescription>Please select a distribution type and click the 'Perform Estimation' button</AlertDescription>
+              <AlertDescription>{t('errors.validData')}</AlertDescription>
             </Alert>
           )}
         </Box>

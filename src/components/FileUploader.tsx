@@ -1,5 +1,6 @@
 import { useState, useRef } from 'react';
 import { Box, Button, Text, Alert, AlertIcon, AlertDescription, Progress } from '@chakra-ui/react';
+import { useTranslation } from 'react-i18next';
 import { FileUploaderProps } from '../types';
 
 // Simple parsing function for Excel files (simplified version, consider using xlsx library in actual projects)
@@ -34,7 +35,7 @@ const parseExcelLike = (content: string): number[] => {
 };
 
 // Parsing function for JSON files
-const parseJSON = (content: string): number[] => {
+const parseJSON = (content: string, t: (key: string) => string): number[] => {
   try {
     const parsed = JSON.parse(content);
     const data: number[] = [];
@@ -71,11 +72,12 @@ const parseJSON = (content: string): number[] => {
     
     return data;
   } catch (error) {
-    throw new Error('JSON parsing failed, please ensure the file format is correct');
+    throw new Error(t('fileUpload.jsonParsingFailed'));
   }
 };
 
 function FileUploader({ onDataChange }: FileUploaderProps) {
+  const { t } = useTranslation();
   const [uploadProgress, setUploadProgress] = useState<number>(0);
   const [selectedFileName, setSelectedFileName] = useState<string>('');
   const [errorMessage, setErrorMessage] = useState<string>('');
@@ -126,7 +128,7 @@ function FileUploader({ onDataChange }: FileUploaderProps) {
             fileType = 'csv';
             break;
           case 'json':
-            data = parseJSON(content);
+            data = parseJSON(content, t);
             fileType = 'json';
             break;
           case 'txt':
@@ -142,11 +144,11 @@ function FileUploader({ onDataChange }: FileUploaderProps) {
             fileType = 'excel';
             break;
           default:
-            throw new Error('Unsupported file format, please upload CSV, JSON, TXT or Excel files');
+            throw new Error(t('fileUpload.unsupportedFormat'));
         }
         
         if (data.length === 0) {
-          throw new Error('No valid numerical data found in the file');
+          throw new Error(t('fileUpload.noValidData'));
         }
 
         onDataChange(data, {
@@ -155,13 +157,13 @@ function FileUploader({ onDataChange }: FileUploaderProps) {
         });
       } catch (error) {
         setErrorMessage(
-          error instanceof Error ? error.message : 'Error processing file'
+          error instanceof Error ? error.message : t('fileUpload.errorProcessingFile')
         );
       }
     };
 
     reader.onerror = () => {
-      setErrorMessage('Error reading file');
+      setErrorMessage(t('fileUpload.errorReadingFile'));
     };
 
     // For text files, use readAsText
@@ -225,22 +227,22 @@ function FileUploader({ onDataChange }: FileUploaderProps) {
         variant="solid"
         size="lg"
       >
-        Upload CSV File
+        {t('fileUpload.uploadCSVFile')}
       </Button>
 
       {uploadProgress > 0 && uploadProgress < 100 && (
         <Box mt={4}>
           <Progress value={uploadProgress} width="100%" />
           <Text fontSize="sm" mt={1} color="gray.500">
-            Processing... {uploadProgress}%
+            {t('fileUpload.processing')} {uploadProgress}%
           </Text>
         </Box>
       )}
 
       {selectedFileName && uploadProgress === 100 && (
         <Text mt={4} color="green.600">
-            Successfully uploaded: {selectedFileName}
-          </Text>
+            {t('fileUpload.successfullyUploaded', { fileName: selectedFileName })}
+        </Text>
       )}
 
       {errorMessage && (
@@ -252,12 +254,12 @@ function FileUploader({ onDataChange }: FileUploaderProps) {
 
       <Box mt={6} p={4} bg="gray.50" borderRadius="md">
         <Text fontSize="sm" color="gray.600">
-          <strong>Instructions:</strong>
-          <br />• Supports CSV, JSON, TXT and Excel (.xlsx, .xls) file formats
-          <br />• Files can include or exclude headers
-          <br />• Data can be single-column or multi-column
-          <br />• Only numerical data is extracted for analysis
-          <br />• For JSON files, numerical arrays or object arrays with numerical fields are supported
+          <strong>{t('fileUpload.instructions')}:</strong>
+          <br />• {t('fileUpload.supportsFormats')}
+          <br />• {t('fileUpload.filesIncludeHeaders')}
+          <br />• {t('fileUpload.dataSingleMultiColumn')}
+          <br />• {t('fileUpload.onlyNumericalData')}
+          <br />• {t('fileUpload.forJSONFiles')}
         </Text>
       </Box>
     </Box>

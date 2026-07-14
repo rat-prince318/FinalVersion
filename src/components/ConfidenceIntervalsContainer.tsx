@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Box, Text, Button, Stack, Divider } from '@chakra-ui/react';
+import { useTranslation } from 'react-i18next';
 import OneSampleMeanCI from './OneSampleMeanCI';
 import TwoSampleMeanCI from './TwoSampleMeanCI';
 import ProportionCI from './ProportionCI';
@@ -11,8 +12,8 @@ interface ConfidenceIntervalsContainerProps {
   dataset?: number[];
   dataset2?: number[];
   pairedData?: {before: number[], after: number[]};
-  isGeneratedDataset?: boolean; // New flag indicating if the dataset is system-generated
-  distributionInfo?: { // Dataset distribution information
+  isGeneratedDataset?: boolean;
+  distributionInfo?: {
     type: string;
     name: string;
     parameters: Record<string, number>;
@@ -28,16 +29,12 @@ function ConfidenceIntervalsContainer({
   distributionInfo,
   basicStats
 }: ConfidenceIntervalsContainerProps) {
-  // Primary category: mean difference and proportion
-  const [primaryCategory, setPrimaryCategory] = useState('mean'); // 'mean' or 'proportion'
+  const { t } = useTranslation();
   
-  // Secondary category: specific type under mean difference
-  const [meanSubType, setMeanSubType] = useState('oneSample'); // 'oneSample', 'twoSample', 'paired'
-  
-  // Secondary category: specific type under proportion
-  const [proportionSubType, setProportionSubType] = useState('oneProportion'); // 'oneProportion', 'twoProportion'
+  const [primaryCategory, setPrimaryCategory] = useState('mean');
+  const [meanSubType, setMeanSubType] = useState('oneSample');
+  const [proportionSubType, setProportionSubType] = useState('oneProportion');
 
-  // Render corresponding confidence interval component based on selected type
   const renderIntervalComponent = () => {
     if (primaryCategory === 'mean') {
       switch (meanSubType) {
@@ -70,10 +67,9 @@ function ConfidenceIntervalsContainer({
   return (
     <Box p={6} bg="white" rounded="lg" shadow="md">
       <Text fontSize="xl" fontWeight="bold" mb={6} textAlign="center">
-        Confidence Interval Analysis
+        {t('confidenceInterval.title')}
       </Text>
       
-      {/* Primary category buttons */}
       <Stack direction="row" gap={4} mb={4} justifyContent="center">
         <Button
           variant={primaryCategory === 'mean' ? "solid" : "outline"}
@@ -81,7 +77,7 @@ function ConfidenceIntervalsContainer({
           size="lg"
           onClick={() => setPrimaryCategory('mean')}
         >
-          Mean Difference
+          {t('confidenceInterval.meanDifference')}
         </Button>
         <Button
           variant={primaryCategory === 'proportion' ? "solid" : "outline"}
@@ -89,13 +85,12 @@ function ConfidenceIntervalsContainer({
           size="lg"
           onClick={() => setPrimaryCategory('proportion')}
         >
-          Proportion
+          {t('confidenceInterval.proportion')}
         </Button>
       </Stack>
       
       <Divider mb={4} />
       
-      {/* Secondary category buttons - show different options based on primary category */}
       {primaryCategory === 'mean' && (
         <Stack direction="row" gap={2} mb={6} flexWrap="wrap" justifyContent="center">
           <Button
@@ -103,21 +98,21 @@ function ConfidenceIntervalsContainer({
             colorScheme="green"
             onClick={() => setMeanSubType('oneSample')}
           >
-            One Sample Mean
+            {t('confidenceInterval.oneSampleMean')}
           </Button>
           <Button
             variant={meanSubType === 'twoSample' ? "solid" : "outline"}
             colorScheme="green"
             onClick={() => setMeanSubType('twoSample')}
           >
-            Two Sample Mean Difference
+            {t('confidenceInterval.twoSampleMean')}
           </Button>
           <Button
             variant={meanSubType === 'paired' ? "solid" : "outline"}
             colorScheme="green"
             onClick={() => setMeanSubType('paired')}
           >
-            Paired Sample Mean Difference
+            {t('confidenceInterval.pairedMean')}
           </Button>
         </Stack>
       )}
@@ -129,19 +124,18 @@ function ConfidenceIntervalsContainer({
             colorScheme="green"
             onClick={() => setProportionSubType('oneProportion')}
           >
-            One Proportion
+            {t('confidenceInterval.oneProportion')}
           </Button>
           <Button
             variant={proportionSubType === 'twoProportion' ? "solid" : "outline"}
             colorScheme="green"
             onClick={() => setProportionSubType('twoProportion')}
           >
-            Two Proportion Difference
+            {t('confidenceInterval.twoProportion')}
           </Button>
         </Stack>
       )}
       
-      {/* Render the selected confidence interval component */}
       <Box p={4}>
         {renderIntervalComponent()}
       </Box>

@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Box, Text, FormControl, FormLabel, Input, Select, Button, Card, CardBody, Grid, Alert } from '@chakra-ui/react';
+import { useTranslation } from 'react-i18next';
 import { calculateProportionConfidenceInterval } from '../utils/statistics';
 
 interface ProportionCIProps {
@@ -7,7 +8,8 @@ interface ProportionCIProps {
 }
 
 function ProportionCI({ dataset = [] }: ProportionCIProps) {
-  // One proportion parameters
+  const { t } = useTranslation();
+  
   const [successCount, setSuccessCount] = useState<string>('');
   const [sampleSize, setSampleSize] = useState<string>('');
   const [confidenceLevel, setConfidenceLevel] = useState<string>('0.95');
@@ -16,9 +18,7 @@ function ProportionCI({ dataset = [] }: ProportionCIProps) {
   const [error, setError] = useState<string | null>(null);
   
   useEffect(() => {
-    // If dataset is provided, automatically calculate number of successes and sample size
     if (dataset.length > 0) {
-      // Assume dataset is binary (0 and 1), count number of 1s as successes
       const count = dataset.filter(value => value === 1).length;
       setSuccessCount(count.toString());
       setSampleSize(dataset.length.toString());
@@ -33,23 +33,23 @@ function ProportionCI({ dataset = [] }: ProportionCIProps) {
       const cl = parseFloat(confidenceLevel);
       
       if (isNaN(y) || isNaN(n) || isNaN(cl) || y < 0 || n <= 0 || y > n) {
-        throw new Error('Please enter valid success count and sample size');
+        throw new Error(t('errors.validData'));
       }
       
       const result = calculateProportionConfidenceInterval(y, n, cl, { method });
       setResults(result);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Calculation error');
+      setError(err instanceof Error ? err.message : t('errors.parseError'));
     }
   };
 
   return (
     <Box>
-      <Text fontSize="lg" mb={6}>One-Proportion Confidence Interval Calculation</Text>
+      <Text fontSize="lg" mb={6}>{t('confidenceInterval.oneProportion')}</Text>
           
       <Grid templateColumns={{ base: '1fr', md: 'repeat(2, 1fr)' }} gap={6} mb={6}>
         <FormControl>
-          <FormLabel fontSize="sm">Success Count (y)</FormLabel>
+          <FormLabel fontSize="sm">{t('confidenceInterval.successCount')}</FormLabel>
           <Input
             type="number"
             value={successCount}
@@ -58,7 +58,7 @@ function ProportionCI({ dataset = [] }: ProportionCIProps) {
           />
         </FormControl>
         <FormControl>
-          <FormLabel fontSize="sm">Sample Size (n)</FormLabel>
+          <FormLabel fontSize="sm">{t('statistics.sampleSize')} (n)</FormLabel>
           <Input
             type="number"
             value={sampleSize}
@@ -67,7 +67,7 @@ function ProportionCI({ dataset = [] }: ProportionCIProps) {
           />
         </FormControl>
         <FormControl>
-          <FormLabel fontSize="sm">Confidence Level</FormLabel>
+          <FormLabel fontSize="sm">{t('confidenceInterval.confidenceLevel')}</FormLabel>
           <Select
             value={confidenceLevel}
             onChange={(e) => setConfidenceLevel(e.target.value)}
@@ -78,19 +78,19 @@ function ProportionCI({ dataset = [] }: ProportionCIProps) {
           </Select>
         </FormControl>
         <FormControl>
-          <FormLabel fontSize="sm">Calculation Method</FormLabel>
+          <FormLabel fontSize="sm">{t('statistics.calculationMethod')}</FormLabel>
           <Select
             value={method}
             onChange={(e) => setMethod(e.target.value as 'wald' | 'wilson')}
           >
-            <option value="wald">Wald Interval</option>
-            <option value="wilson">Wilson Score Interval</option>
+            <option value="wald">{t('confidenceInterval.waldInterval')}</option>
+            <option value="wilson">{t('confidenceInterval.wilsonInterval')}</option>
           </Select>
         </FormControl>
       </Grid>
       
       <Button onClick={handleCalculate} colorScheme="blue" width="100%" mb={6}>
-        Calculate Confidence Interval
+        {t('common.generate')} {t('confidenceInterval.title')}
       </Button>
       
       {error && (
@@ -105,7 +105,7 @@ function ProportionCI({ dataset = [] }: ProportionCIProps) {
             <Grid templateColumns={{ base: '1fr', md: 'repeat(2, 1fr)' }} gap={4} mb={4}>
               <Card>
                 <CardBody>
-                  <Text fontSize="sm" color="gray.500">Sample Proportion (p̂)</Text>
+                  <Text fontSize="sm" color="gray.500">{t('confidenceInterval.sampleProportion')}</Text>
                   <Text fontSize="2xl" fontWeight="bold">
                     {results.proportion !== undefined ? results.proportion.toFixed(4) : 'N/A'}
                   </Text>
@@ -113,7 +113,7 @@ function ProportionCI({ dataset = [] }: ProportionCIProps) {
               </Card>
               <Card>
                 <CardBody>
-                  <Text fontSize="sm" color="gray.500">Standard Error</Text>
+                  <Text fontSize="sm" color="gray.500">{t('confidenceInterval.standardError')}</Text>
                   <Text fontSize="2xl" fontWeight="bold">
                     {results.standardError !== undefined ? results.standardError.toFixed(4) : 'N/A'}
                   </Text>
@@ -121,7 +121,7 @@ function ProportionCI({ dataset = [] }: ProportionCIProps) {
               </Card>
               <Card>
                 <CardBody>
-                  <Text fontSize="sm" color="gray.500">Margin of Error</Text>
+                  <Text fontSize="sm" color="gray.500">{t('statistics.marginOfError')}</Text>
                   <Text fontSize="2xl" fontWeight="bold">
                     {results.marginOfError !== undefined ? results.marginOfError.toFixed(4) : 'N/A'}
                   </Text>
@@ -129,7 +129,7 @@ function ProportionCI({ dataset = [] }: ProportionCIProps) {
               </Card>
               <Card>
                 <CardBody>
-                  <Text fontSize="sm" color="gray.500">Calculation Method</Text>
+                  <Text fontSize="sm" color="gray.500">{t('statistics.calculationMethod')}</Text>
                   <Text fontSize="lg" fontWeight="bold">{results.method || 'N/A'}</Text>
                 </CardBody>
               </Card>
@@ -137,7 +137,7 @@ function ProportionCI({ dataset = [] }: ProportionCIProps) {
             
             <Box mt={4}>
               <Text fontSize="sm" color="gray.600">
-                {confidenceLevel === '0.95' ? '95%' : confidenceLevel === '0.90' ? '90%' : '99%'} Confidence Interval:
+                {confidenceLevel === '0.95' ? '95%' : confidenceLevel === '0.90' ? '90%' : '99%'} {t('confidenceInterval.title')}:
               </Text>
               <Text fontWeight="bold" fontSize="lg">
                 [

@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Box, Text, Tabs, Tab, Card, CardBody } from '@chakra-ui/react';
+import { useTranslation } from 'react-i18next';
 import DistributionGenerator from './DistributionGenerator';
 import PairedDataGenerator from './PairedDataGenerator';
 import TwoSampleDataGenerator from './TwoSampleDataGenerator';
@@ -20,6 +21,7 @@ interface DataGeneratorContainerProps {
 }
 
 function DataGeneratorContainer({ onDataGenerated, onPairedDataGenerated, onDirectDataChange }: DataGeneratorContainerProps) {
+  const { t } = useTranslation();
   const [activeTab, setActiveTab] = useState<'single' | 'two' | 'paired'>('single');
 
   // Handle single sample data generation
@@ -47,16 +49,16 @@ function DataGeneratorContainer({ onDataGenerated, onPairedDataGenerated, onDire
   return (
     <Card mb={6}>
       <CardBody>
-        <Text fontSize="lg" fontWeight="medium" mb={4}>Data Generation</Text>
+        <Text fontSize="lg" fontWeight="medium" mb={4}>{t('dataGenerator.dataGeneration')}</Text>
         
         <Box borderBottomWidth="1px" borderBottomColor="gray.200" mb={4}>
           <Tabs 
             index={activeTab === 'single' ? 0 : activeTab === 'two' ? 1 : 2}
             onChange={(index) => setActiveTab(index === 0 ? 'single' : index === 1 ? 'two' : 'paired')}
           >
-            <Tab px={4} py={2}>Single Sample Data</Tab>
-            <Tab px={4} py={2}>Two Sample Data</Tab>
-            <Tab px={4} py={2}>Paired Data</Tab>
+            <Tab px={4} py={2}>{t('dataGenerator.singleSampleData')}</Tab>
+            <Tab px={4} py={2}>{t('dataGenerator.twoSampleData')}</Tab>
+            <Tab px={4} py={2}>{t('dataGenerator.pairedData')}</Tab>
           </Tabs>
         </Box>
 
