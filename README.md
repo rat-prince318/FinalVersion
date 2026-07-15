@@ -1,6 +1,7 @@
 # Statistical Analysis Tool
 
 一个功能强大的数据分析Web应用，提供完整的统计分析能力，支持数据生成、可视化和统计推断。
+网页：https://rat-prince318.github.io/FinalVersion/
 
 ## 功能介绍
 
