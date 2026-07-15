@@ -389,7 +389,7 @@ const StatisticsApp: React.FC = () => {
               </Stack>
             </TabPanel>
             <TabPanel>
-              <ProbabilityDistribution data={currentDataset} />
+              <ProbabilityDistribution data={currentDataset} basicStats={basicStats} />
             </TabPanel>
           </TabPanels>
         </Tabs>
@@ -611,7 +611,7 @@ const StatisticsApp: React.FC = () => {
             </TabPanel>
 
             <TabPanel>
-              <ProbabilityDistribution />
+              <ProbabilityDistribution data={currentDataset} basicStats={basicStats} />
             </TabPanel>
 
           </TabPanels>
