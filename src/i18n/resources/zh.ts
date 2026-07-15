@@ -24,7 +24,7 @@ export default {
     generate: '数据生成',
     history: '历史数据',
     directInput: '直接数据输入',
-    csvUpload: 'CSV文件上传',
+    csvUpload: '数据文件上传',
     applyData: '应用数据',
     sampleGeneration: '样本生成类型',
     singleSample: '单样本',
@@ -354,7 +354,7 @@ export default {
     savedSuccess: '数据集保存成功!'
   },
   fileUpload: {
-    uploadCSVFile: '上传CSV文件',
+    uploadDataFile: '上传数据文件',
     processing: '处理中...',
     successfullyUploaded: '成功上传: {fileName}',
     instructions: '说明',

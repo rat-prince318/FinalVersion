@@ -3,33 +3,82 @@ import { Box, Button, Text, Alert, AlertIcon, AlertDescription, Progress } from 
 import { useTranslation } from 'react-i18next';
 import { FileUploaderProps } from '../types';
 
-// Simple parsing function for Excel files (simplified version, consider using xlsx library in actual projects)
-const parseExcelLike = (content: string): number[] => {
-  // Excel files are usually tab-separated
+const parseDelimitedNumbers = (content: string, delimiterPattern: RegExp): number[] => {
   const lines = content.split(/\r\n|\n/).filter((line) => line.trim());
+
+  if (lines.length === 0) {
+    return [];
+  }
+
+  const parseNumericToken = (token: string): number => {
+    const trimmed = token.trim();
+    return trimmed === '' ? Number.NaN : Number(trimmed);
+  };
+
+  const firstLineNumbers = lines[0].split(delimiterPattern).map((item) => parseNumericToken(item));
+  const hasHeader = firstLineNumbers.some((num) => Number.isNaN(num));
+  const startLine = hasHeader ? 1 : 0;
   const data: number[] = [];
 
-  // Check if there is a header
-  const firstLineNumbers = lines[0].split(/\t|,/).map((item) => parseFloat(item.trim()));
-  const hasHeader = firstLineNumbers.some((num) => isNaN(num));
-
-  // Start parsing data from the appropriate line
-  const startLine = hasHeader ? 1 : 0;
-
   for (let i = startLine; i < lines.length; i++) {
-    // Support tab or comma separation
-    const values = lines[i].split(/\t|,/);
-    
+    const values = lines[i].split(delimiterPattern);
+
     for (const value of values) {
-      const trimmedValue = value.trim();
-      if (trimmedValue) {
-        const num = parseFloat(trimmedValue);
-        if (!isNaN(num)) {
-          data.push(num);
-        }
+      const numericValue = parseNumericToken(value);
+      if (!Number.isNaN(numericValue)) {
+        data.push(numericValue);
       }
     }
   }
+
+  return data;
+};
+
+const collectNumericValues = (value: unknown, data: number[]): void => {
+  if (typeof value === 'number' && Number.isFinite(value)) {
+    data.push(value);
+    return;
+  }
+
+  if (typeof value === 'string') {
+    const trimmedValue = value.trim();
+    if (trimmedValue !== '') {
+      const numericValue = Number(trimmedValue);
+      if (!Number.isNaN(numericValue)) {
+        data.push(numericValue);
+      }
+    }
+    return;
+  }
+
+  if (Array.isArray(value)) {
+    value.forEach((item) => collectNumericValues(item, data));
+    return;
+  }
+
+  if (value && typeof value === 'object') {
+    Object.values(value as Record<string, unknown>).forEach((item) => collectNumericValues(item, data));
+  }
+};
+
+const parseSpreadsheet = async (content: ArrayBuffer): Promise<number[]> => {
+  const XLSX = await import('xlsx');
+  const workbook = XLSX.read(content, { type: 'array' });
+  const firstSheetName = workbook.SheetNames[0];
+
+  if (!firstSheetName) {
+    return [];
+  }
+
+  const sheet = workbook.Sheets[firstSheetName];
+  const rows = XLSX.utils.sheet_to_json(sheet, {
+    header: 1,
+    raw: true,
+    defval: null,
+  }) as unknown[][];
+  const data: number[] = [];
+
+  rows.forEach((row) => collectNumericValues(row, data));
 
   return data;
 };
@@ -39,36 +88,8 @@ const parseJSON = (content: string, t: (key: string) => string): number[] => {
   try {
     const parsed = JSON.parse(content);
     const data: number[] = [];
-    
-    // Process array
-    if (Array.isArray(parsed)) {
-      // Flat array
-      if (parsed.length > 0 && typeof parsed[0] === 'number') {
-        return parsed.filter(val => !isNaN(val));
-      }
-      // Object array, try to extract numeric fields
-      else {
-        parsed.forEach(item => {
-          if (typeof item === 'object' && item !== null) {
-            Object.values(item).forEach(val => {
-              if (typeof val === 'number' && !isNaN(val)) {
-                data.push(val);
-              }
-            });
-          } else if (typeof item === 'number' && !isNaN(item)) {
-            data.push(item);
-          }
-        });
-      }
-    }
-    // Process object
-    else if (typeof parsed === 'object' && parsed !== null) {
-      Object.values(parsed).forEach(val => {
-        if (typeof val === 'number' && !isNaN(val)) {
-          data.push(val);
-        }
-      });
-    }
+
+    collectNumericValues(parsed, data);
     
     return data;
   } catch (error) {
@@ -115,8 +136,9 @@ function FileUploader({ onDataChange }: FileUploaderProps) {
     const fileExtension = file.name.split('.').pop()?.toLowerCase();
 
     reader.onload = (e) => {
-      try {
-        const content = e.target?.result as string;
+      void (async () => {
+        try {
+        const result = e.target?.result;
         let data: number[] = [];
         let fileType = 'unknown';
         let fileName = file.name;
@@ -124,23 +146,24 @@ function FileUploader({ onDataChange }: FileUploaderProps) {
         // Select the appropriate parsing method based on file extension
         switch (fileExtension) {
           case 'csv':
-            data = parseCSV(content);
+            data = parseDelimitedNumbers(result as string, /,/);
             fileType = 'csv';
             break;
           case 'json':
-            data = parseJSON(content, t);
+            data = parseJSON(result as string, t);
             fileType = 'json';
             break;
           case 'txt':
-            // Try to parse text file with CSV parser
-            data = parseExcelLike(content);
+            data = parseDelimitedNumbers(result as string, /[\t,;\s]+/);
             fileType = 'txt';
             break;
           case 'xlsx':
           case 'xls':
-            // Note: This is a simplified implementation, use professional Excel parsing library in actual projects
-            // Here we assume the Excel file content has been converted to text form
-            data = parseExcelLike(content);
+            if (!(result instanceof ArrayBuffer)) {
+              throw new Error(t('fileUpload.errorProcessingFile'));
+            }
+
+            data = await parseSpreadsheet(result);
             fileType = 'excel';
             break;
           default:
@@ -155,56 +178,23 @@ function FileUploader({ onDataChange }: FileUploaderProps) {
           type: fileType,
           name: fileName,
         });
-      } catch (error) {
-        setErrorMessage(
-          error instanceof Error ? error.message : t('fileUpload.errorProcessingFile')
-        );
-      }
+        } catch (error) {
+          setErrorMessage(
+            error instanceof Error ? error.message : t('fileUpload.errorProcessingFile')
+          );
+        }
+      })();
     };
 
     reader.onerror = () => {
       setErrorMessage(t('fileUpload.errorReadingFile'));
     };
 
-    // For text files, use readAsText
     if (['csv', 'json', 'txt'].includes(fileExtension || '')) {
       reader.readAsText(file);
     } else if (['xlsx', 'xls'].includes(fileExtension || '')) {
-      // Note: This is a simplified implementation, use professional Excel parsing library in actual projects
-      // Here we assume Excel files can be read as text (which is not actually applicable for binary Excel files)
-      reader.readAsText(file);
-      // In a real project, you should use:
-      // reader.readAsArrayBuffer(file);
-      // Then use libraries like xlsx to parse binary data
+      reader.readAsArrayBuffer(file);
     }
-  };
-
-  const parseCSV = (content: string): number[] => {
-    const lines = content.split(/\r\n|\n/).filter((line) => line.trim());
-    const data: number[] = [];
-
-    // Check if there is a header
-    const firstLineNumbers = lines[0].split(',').map((item) => parseFloat(item.trim()));
-    const hasHeader = firstLineNumbers.some((num) => isNaN(num));
-
-    // Start parsing data from the appropriate line
-    const startLine = hasHeader ? 1 : 0;
-
-    for (let i = startLine; i < lines.length; i++) {
-      const values = lines[i].split(',');
-      
-      for (const value of values) {
-        const trimmedValue = value.trim();
-        if (trimmedValue) {
-          const num = parseFloat(trimmedValue);
-          if (!isNaN(num)) {
-            data.push(num);
-          }
-        }
-      }
-    }
-
-    return data;
   };
 
   const handleUploadClick = () => {
@@ -227,7 +217,7 @@ function FileUploader({ onDataChange }: FileUploaderProps) {
         variant="solid"
         size="lg"
       >
-        {t('fileUpload.uploadCSVFile')}
+        {t('fileUpload.uploadDataFile')}
       </Button>
 
       {uploadProgress > 0 && uploadProgress < 100 && (

@@ -24,7 +24,7 @@ export default {
     generate: 'Data Generation',
     history: 'History Data',
     directInput: 'Direct Data Input',
-    csvUpload: 'CSV File Upload',
+    csvUpload: 'Data File Upload',
     applyData: 'Apply Data',
     sampleGeneration: 'Sample Generation Type',
     singleSample: 'Single Sample',
@@ -354,7 +354,7 @@ export default {
     savedSuccess: 'Dataset saved successfully!'
   },
   fileUpload: {
-    uploadCSVFile: 'Upload CSV File',
+    uploadDataFile: 'Upload Data File',
     processing: 'Processing...',
     successfullyUploaded: 'Successfully uploaded: {fileName}',
     instructions: 'Instructions',
