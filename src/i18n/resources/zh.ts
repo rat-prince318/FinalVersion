@@ -285,6 +285,7 @@ export default {
     customParams: '输入{{distribution}}的自定义参数',
     estimatedParams: '估计参数（来自数据）:',
     performTest: '执行拟合优度检验',
+    performingTest: '正在执行检验...',
     autoTestTitle: '自动拟合优度检验',
     autoTestDesc: '自动测试所有支持的分布类型和检验方法，并根据p值推荐最佳拟合的分布类型。',
     startAutoTest: '开始自动检验',

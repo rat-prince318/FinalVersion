@@ -93,6 +93,7 @@ const GoodnessOfFitTest: React.FC<GoodnessOfFitTestProps> = ({
     rank: number;
     isActualDistribution?: boolean;
   }>>([]);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
   const [autoTestRunning, setAutoTestRunning] = useState<boolean>(false);
   const [recommendedDistribution, setRecommendedDistribution] = useState<any>(null);
   const [actualDistributionAccuracy, setActualDistributionAccuracy] = useState<{
@@ -340,8 +341,9 @@ const GoodnessOfFitTest: React.FC<GoodnessOfFitTestProps> = ({
   const performTest = () => {
     try {
       setError(null);
+      setIsLoading(true);
+      setTestResult(null);
 
-      // Validate inputs
       if (!dataset || dataset.length === 0) {
         throw new Error(t('goodnessOfFit.errors.noDataset'));
       }
@@ -355,10 +357,8 @@ const GoodnessOfFitTest: React.FC<GoodnessOfFitTestProps> = ({
         throw new Error(t('goodnessOfFit.errors.smallSample'));
       }
 
-      // Get parameters to use
       const paramsToUse = useCustomParameters ? customParams : estimatedParams;
 
-      // Execute the test
       const result = executeGoFTest(
         dataset,
         testType,
@@ -370,7 +370,6 @@ const GoodnessOfFitTest: React.FC<GoodnessOfFitTestProps> = ({
 
       setTestResult(result);
 
-      // 计算QQ图数据（仅支持正态分布）
       if (distributionType === 'normal') {
         try {
           const paramsToUse = useCustomParameters ? customParams : estimatedParams;
@@ -381,15 +380,18 @@ const GoodnessOfFitTest: React.FC<GoodnessOfFitTestProps> = ({
           setQQPlotData([]);
         }
       } else {
-        setQQPlotData([]); // 非正态分布清除QQ图数据
+        setQQPlotData([]);
       }
 
       if (onTestComplete) {
         onTestComplete(result);
       }
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Test execution failed');
+      console.error('Goodness-of-fit test execution failed:', err);
+      setError(err instanceof Error ? err.message : t('goodnessOfFit.errors.testError'));
       setTestResult(null);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -404,6 +406,26 @@ const GoodnessOfFitTest: React.FC<GoodnessOfFitTestProps> = ({
   const isTestApplicable = () => {
     const distribution = getCurrentDistribution();
     return distribution ? distribution.supportedTests.includes(testType) : false;
+  };
+
+  const getButtonDisabledReason = () => {
+    if (!dataset || dataset.length === 0) {
+      return t('goodnessOfFit.errors.noDataset');
+    }
+    if (dataset.length < 5) {
+      return t('goodnessOfFit.errors.smallSample');
+    }
+    if (!isTestApplicable()) {
+      return t('goodnessOfFit.errors.notApplicable', {
+        method: getCurrentTestMethod()?.name || '',
+        distribution: getCurrentDistribution()?.name || '',
+      });
+    }
+    return '';
+  };
+
+  const isButtonDisabled = () => {
+    return !dataset || dataset.length < 5 || !isTestApplicable();
   };
 
   const getInterpretation = (result: GoFTestResult) => {
@@ -674,7 +696,8 @@ const GoodnessOfFitTest: React.FC<GoodnessOfFitTestProps> = ({
       }
 
     } catch (err) {
-      setError(err instanceof Error ? err.message : '自动测试执行失败');
+      console.error('Automatic goodness-of-fit test execution failed:', err);
+      setError(err instanceof Error ? err.message : t('goodnessOfFit.autoTestError'));
     } finally {
       setAutoTestRunning(false);
     }
@@ -836,14 +859,22 @@ const GoodnessOfFitTest: React.FC<GoodnessOfFitTestProps> = ({
               </Card>
 
               {/* Execute Test Button */}
-              <Button 
-                onClick={performTest} 
-                colorScheme="blue" 
-                size="lg"
-                isDisabled={!isTestApplicable()}
+              <Tooltip 
+                label={isButtonDisabled() ? getButtonDisabledReason() : ''}
+                isDisabled={!isButtonDisabled()}
+                hasArrow
               >
-                {t('goodnessOfFit.performTest')}
-              </Button>
+                <Button 
+                  onClick={performTest} 
+                  colorScheme="blue" 
+                  size="lg"
+                  isDisabled={isButtonDisabled()}
+                  isLoading={isLoading}
+                  loadingText={t('goodnessOfFit.performingTest') || 'Running test...'}
+                >
+                  {t('goodnessOfFit.performTest')}
+                </Button>
+              </Tooltip>
             </VStack>
           </TabPanel>
 

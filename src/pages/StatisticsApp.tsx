@@ -161,7 +161,12 @@ const StatisticsApp: React.FC = () => {
     };
     
     setSavedDatasets([...savedDatasets, newDataset]);
+    setSelectedDatasetIds([newDataset.id]);
+    setIsDatasetGenerated(false);
+    setDataset1Distribution(null);
     setDatasetName('');
+    setDataUpdated(true);
+    setTimeout(() => setDataUpdated(false), 3000);
     alert(t('errors.savedSuccess'));
   };
 
@@ -193,6 +198,13 @@ const StatisticsApp: React.FC = () => {
       setPairedData({ sample1: [], sample2: [] });
       setIsDatasetGenerated(false);
       setDataset1Distribution(null);
+      setDataUpdated(true);
+      setTimeout(() => setDataUpdated(false), 3000);
+    } else {
+      setIsDatasetGenerated(false);
+      setDataset1Distribution(null);
+      setDataset2([]);
+      setPairedData({ sample1: [], sample2: [] });
       setDataUpdated(true);
       setTimeout(() => setDataUpdated(false), 3000);
     }

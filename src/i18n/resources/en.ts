@@ -285,6 +285,7 @@ export default {
     customParams: 'Enter custom parameters for the {{distribution}}',
     estimatedParams: 'Estimated Parameters (from data):',
     performTest: 'Perform Goodness-of-Fit Test',
+    performingTest: 'Running test...',
     autoTestTitle: 'Automatic Goodness-of-Fit Test',
     autoTestDesc: 'Automatically test all supported distribution types and test methods, and recommend the best-fitting distribution type based on p-value.',
     startAutoTest: 'Start Auto Test',
