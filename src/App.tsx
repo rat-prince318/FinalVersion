@@ -1,5 +1,6 @@
 import { ChakraProvider, extendTheme } from '@chakra-ui/react';
 import StatisticsApp from './pages/StatisticsApp';
+import AppLayout from './components/AppLayout';
 
 // Create a complete theme configuration ensuring all necessary component styles are included
 const theme = extendTheme({
@@ -29,7 +30,9 @@ function App() {
   // Simplify App component and ensure ChakraProvider correctly wraps all components
   return (
     <ChakraProvider theme={theme}>
-      <StatisticsApp />
+      <AppLayout>
+        <StatisticsApp />
+      </AppLayout>
     </ChakraProvider>
   );
 }

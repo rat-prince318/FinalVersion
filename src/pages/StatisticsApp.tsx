@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from 'react';
-import { Box, Container, Heading, Tabs, TabList, TabPanels, Tab, TabPanel, Divider, Alert, AlertIcon, Input, Button, Text, Checkbox, Stack, Textarea, Grid, Flex } from '@chakra-ui/react';
+import { Box, Heading, Tabs, TabList, TabPanels, Tab, TabPanel, Divider, Alert, AlertIcon, Input, Button, Text, Checkbox, Stack, Textarea, Grid } from '@chakra-ui/react';
 import { useTranslation } from 'react-i18next';
 import FileUploader from '../components/FileUploader';
 import DistributionGenerator from '../components/DistributionGenerator';
@@ -10,7 +10,7 @@ import HypothesisTestingTab from '../components/HypothesisTestingTab';
 import SampleSizeCalculator from '../components/SampleSizeCalculator';
 import GoodnessOfFitTest from '../components/GoodnessOfFitTest';
 import ProbabilityDistribution from '../components/ProbabilityDistribution';
-import LanguageSwitcher from '../i18n/components/LanguageSwitcher';
+
 import { calculateMean, calculateStd, calculateMedian, calculateSkewness, calculateKurtosis } from '../utils/statistics';
 
 interface Dataset {
@@ -211,15 +211,8 @@ const StatisticsApp: React.FC = () => {
   };
 
   return (
-    <Container maxW="container.lg" py={4}>
-      <Flex justifyContent="space-between" alignItems="center" mb={4}>
-        <Heading as="h1" size="lg">
-          {t('app.title')}
-        </Heading>
-        <LanguageSwitcher />
-      </Flex>
-      
-      <Box 
+    <>
+      <Box
         mb={6} 
         bg="white" 
         p={4} 
@@ -636,7 +629,7 @@ const StatisticsApp: React.FC = () => {
           {t('dataset.noDatasets')}
         </Alert>
       )}
-    </Container>
+    </>
   );
 };
 
