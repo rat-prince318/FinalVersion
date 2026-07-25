@@ -87,7 +87,7 @@ function MLEMoMTab({ dataset, distribution, basicStats, isGeneratedDataset }: ML
                   <Text fontWeight="medium" mb={2}>{t('mleMom.autoDetection')}</Text>
                   <Text fontSize="sm" mb={1}>{t('mleMom.selectDistribution')}: {distribution.name}</Text>
                   {distribution.parameters && Object.entries(distribution.parameters).length > 0 && (
-                    <Text fontSize="sm" mt={1}>Parameters: {Object.entries(distribution.parameters)
+                    <Text fontSize="sm" mt={1}>{t('mleMom.parameters')} {Object.entries(distribution.parameters)
                       .map(([key, value]) => `${key}: ${value}`)
                       .join(', ')}
                     </Text>

@@ -69,7 +69,7 @@ function TwoSampleMeanCI({ dataset1 = [], dataset2 = [] }: TwoSampleMeanCIProps)
         
         setResult(ciResult);
       } else {
-        throw new Error('Statistical input mode not yet implemented');
+        throw new Error(t('confidenceInterval.statsModeNotImplemented'));
       }
     } catch (err) {
       setError(err instanceof Error ? err.message : t('errors.parseError'));

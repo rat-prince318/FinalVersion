@@ -180,7 +180,7 @@ const SampleSizeCalculator: React.FC<SampleSizeCalculatorProps> = ({ dataset, ba
                     setResult(null);
                   }
                 }}
-                placeholder="e.g., 0.95"
+                placeholder={t('sampleSize.placeholders.confidenceLevel')}
                 mb={2}
               />
             </FormControl>
@@ -197,7 +197,7 @@ const SampleSizeCalculator: React.FC<SampleSizeCalculatorProps> = ({ dataset, ba
                   setMarginOfError(e.target.value);
                   setResult(null);
                 }}
-                placeholder={calculationType === 'mean' ? t('sampleSize.errors.invalidMargin') : "e.g., 0.03"}
+                placeholder={calculationType === 'mean' ? t('sampleSize.errors.invalidMargin') : t('sampleSize.placeholders.marginOfError')}
                 mb={2}
               />
             </FormControl>
@@ -302,7 +302,7 @@ const SampleSizeCalculator: React.FC<SampleSizeCalculatorProps> = ({ dataset, ba
                     setProportionParams({ ...proportionParams, estimatedProportion: e.target.value });
                     setResult(null);
                   }}
-                  placeholder="e.g., 0.65"
+                  placeholder={t('sampleSize.placeholders.proportion')}
                   my={2}
                 />
               </FormControl>

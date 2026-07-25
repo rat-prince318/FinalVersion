@@ -1,4 +1,5 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { ScatterChart, Scatter, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, ReferenceLine } from 'recharts';
 import { Card, CardBody, Text } from '@chakra-ui/react';
 
@@ -10,7 +11,9 @@ interface QQPlotProps {
 /**
  * QQ Plot component for visualizing the goodness of fit between sample data and theoretical distribution
  */
-const QQPlot: React.FC<QQPlotProps> = ({ qqData, title = 'QQ Plot' }) => {
+const QQPlot: React.FC<QQPlotProps> = ({ qqData, title }) => {
+  const { t } = useTranslation();
+  const displayTitle = title || t('qqPlot.title');
   // Default mock data to ensure the component displays preview in all cases
   const defaultQQData = [
     { theoretical: -1.96, empirical: -2.1 },
@@ -56,8 +59,8 @@ const QQPlot: React.FC<QQPlotProps> = ({ qqData, title = 'QQ Plot' }) => {
           boxShadow: '0 2px 8px rgba(0,0,0,0.1)'
         }}>
           <p style={{ margin: 0, fontWeight: 'bold' }}>{payload[0].payload.name}</p>
-          <p style={{ margin: '4px 0 0 0' }}>Theoretical Quantile: {typeof payload[0].value === 'number' ? payload[0].value.toFixed(4) : 'N/A'}</p>
-          <p style={{ margin: '4px 0 0 0' }}>Empirical Quantile: {typeof payload[1]?.value === 'number' ? payload[1].value.toFixed(4) : 'N/A'}</p>
+          <p style={{ margin: '4px 0 0 0' }}>{t('qqPlot.theoreticalQuantileLabel')}: {typeof payload[0].value === 'number' ? payload[0].value.toFixed(4) : 'N/A'}</p>
+          <p style={{ margin: '4px 0 0 0' }}>{t('qqPlot.empiricalQuantileLabel')}: {typeof payload[1]?.value === 'number' ? payload[1].value.toFixed(4) : 'N/A'}</p>
         </div>
       );
     }
@@ -83,23 +86,23 @@ const QQPlot: React.FC<QQPlotProps> = ({ qqData, title = 'QQ Plot' }) => {
   return (
     <Card mb={4}>
       <CardBody>
-        <Text fontSize="lg" fontWeight="bold" mb={2}>{title}</Text>
+        <Text fontSize="lg" fontWeight="bold" mb={2}>{displayTitle}</Text>
         <div style={{ height: 400 }}>
           <ResponsiveContainer width="100%" height="100%">
             <ScatterChart margin={{ top: 20, right: 30, bottom: 40, left: 40 }}>
               <CartesianGrid strokeDasharray="3 3" opacity={0.3} />
-              <XAxis 
-                type="number" 
-                dataKey="Theoretical Quantile" 
-                name="Theoretical Quantile" 
-                label={{ value: 'Theoretical Quantile', position: 'bottom', offset: 0 }} 
+              <XAxis
+                type="number"
+                dataKey="Theoretical Quantile"
+                name={t('qqPlot.theoreticalQuantile')}
+                label={{ value: t('qqPlot.theoreticalQuantile'), position: 'bottom', offset: 0 }}
                 domain={[minValue - margin, maxValue + margin]}
               />
-              <YAxis 
-                type="number" 
-                dataKey="Empirical Quantile" 
-                name="Empirical Quantile" 
-                label={{ value: 'Empirical Quantile', angle: -90, position: 'insideLeft', offset: -20 }} 
+              <YAxis
+                type="number"
+                dataKey="Empirical Quantile"
+                name={t('qqPlot.empiricalQuantile')}
+                label={{ value: t('qqPlot.empiricalQuantile'), angle: -90, position: 'insideLeft', offset: -20 }}
                 domain={[minValue - margin, maxValue + margin]}
               />
               <Tooltip content={({ active, payload }) => <CustomTooltip active={active || false} payload={payload} />} />
@@ -119,10 +122,10 @@ const QQPlot: React.FC<QQPlotProps> = ({ qqData, title = 'QQ Plot' }) => {
                 y2={maxValue + margin} 
                 stroke="#8884d8" 
                 strokeDasharray="3 3" 
-                name="Ideal Fit Line" 
+                name={t('qqPlot.idealFitLine')} 
               />
               <Scatter 
-                name="Data Points" 
+                name={t('qqPlot.dataPoints')} 
                 data={chartData} 
                 fill="#82ca9d" 
                 x="Theoretical Quantile"

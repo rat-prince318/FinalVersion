@@ -10,7 +10,10 @@ export default {
     info: '提示',
     warning: '警告',
     calculate: '计算',
-    calculateCI: '计算置信区间'
+    calculateCI: '计算置信区间',
+    notAvailable: '暂无数据',
+    noMode: '无众数',
+    parameters: '参数：'
   },
   app: {
     title: '统计分析工具',
@@ -50,7 +53,8 @@ export default {
     selectedDatasets: '当前选择了 {{count}} 个数据集:',
     multipleSelected: '已选择多个数据集。所有数据集将合并进行分析。',
     noDatasets: '暂无保存的数据集。请先生成数据',
-    dataUpdated: '数据已更新。您可以开始分析或保存'
+    dataUpdated: '数据已更新。您可以开始分析或保存',
+    defaultName: '数据集'
   },
   statistics: {
     analysis: '统计分析',
@@ -127,6 +131,7 @@ export default {
     continuityCorrection: '连续性校正',
     value: '值',
     resultInterpretation: '结果解释',
+    statsModeNotImplemented: '统计输入模式尚未实现',
     twoProportionInterpretation1: '我们有 {percent}% 的置信度认为两个总体比例的差异位于 [{lower}%, {upper}%] 之间。',
     twoProportionInterpretation2: '这表明第一个总体的比例显著高于第二个总体。',
     twoProportionInterpretation3: '这表明第一个总体的比例显著低于第二个总体。',
@@ -187,7 +192,8 @@ export default {
     errorUniform: '均匀分布的最小值必须小于最大值',
     parameterDescription: '参数说明',
     instructionsTitle: '说明',
-    enterParam: '输入{{param}}'
+    enterParam: '输入{{param}}',
+    errorUnsupportedType: '不支持的分布类型'
   },
   hypothesisTesting: {
     title: '假设检验',
@@ -268,6 +274,11 @@ export default {
       invalidEstimatedStd: '估计标准差必须大于0',
       invalidProportion: '估计比例必须在0和1之间',
       calculationError: '计算过程中发生错误'
+    },
+    placeholders: {
+      confidenceLevel: '例如：0.95',
+      marginOfError: '例如：0.03',
+      proportion: '例如：0.65'
     }
   },
   goodnessOfFit: {
@@ -313,6 +324,36 @@ export default {
     rejectH0: '拒绝 H₀',
     failToRejectH0: '不拒绝 H₀',
     note: '注：p值越大表示数据越符合该分布。排名第一的结果是最推荐的分布类型。',
+    distributionDescriptions: {
+      normal: '钟形对称分布',
+      uniform: '区间内恒定概率',
+      exponential: '无记忆性的等待时间分布',
+      poisson: '用于计数事件的离散分布',
+      binomial: '用于固定试验中成功次数的离散分布'
+    },
+    methodNames: {
+      kolmogorovSmirnov: '柯尔莫哥洛夫-斯米尔诺夫检验',
+      chiSquare: '卡方拟合优度检验',
+      andersonDarling: '安德森-达林检验',
+      jarqueBera: '贾克-贝拉检验'
+    },
+    methodDescriptions: {
+      kolmogorovSmirnov: '比较经验CDF与理论CDF的非参数检验',
+      chiSquare: '比较观测频率与期望频率',
+      andersonDarling: '相比K-S检验更加注重尾部差异',
+      jarqueBera: '检验样本偏度和峰度是否匹配正态分布'
+    },
+    actualDistributionVerification: '实际分布验证',
+    test: '检验方法：',
+    distributionLabel: '分布：',
+    sampleSizeLabel: '样本量：',
+    significanceLevelLabel: '显著性水平：',
+    degreesOfFreedomLabel: '自由度：',
+    testStatisticLabel: '检验统计量：',
+    pValueLabel: 'P值：',
+    criticalValueLabel: '临界值：',
+    rejectH0Short: '拒绝 H0',
+    failToRejectH0Short: '不拒绝 H0',
     conclusion: '结论: {{conclusion}}',
     interpretation: '解释: {{interpretation}}',
     rejectInterpretation: '数据不符合指定分布',
@@ -337,6 +378,70 @@ export default {
       notApplicable: '所选检验方法（{{method}}）不适用于{{distribution}}。请选择兼容的检验方法。'
     }
   },
+  qqPlot: {
+    title: 'QQ图',
+    theoreticalQuantile: '理论分位数',
+    empiricalQuantile: '经验分位数',
+    idealFitLine: '理想拟合线',
+    dataPoints: '数据点',
+    theoreticalQuantileLabel: '理论分位数：',
+    empiricalQuantileLabel: '经验分位数：'
+  },
+  pairedDataGenerator: {
+    sampleSize: '样本量 (n)',
+    preTestMean: '测试前均值 (μ1)',
+    meanDifference: '均值差异 (μ2 - μ1)',
+    standardDeviation: '标准差 (σ)',
+    correlationCoefficient: '相关系数 (r)',
+    correlationHint: '建议使用较高的正相关系数（0.6-0.9）来模拟真实的配对数据',
+    generateButton: '生成配对数据',
+    invalidParams: '请输入有效的参数值',
+    generationError: '数据生成过程中出错'
+  },
+  proportionCI: {
+    title: '比例置信区间计算',
+    singleTab: '单比例置信区间',
+    twoTab: '两比例差异置信区间',
+    successCount: '成功次数 (y)',
+    sampleSize: '样本量 (n)',
+    confidenceLevel: '置信水平',
+    custom: '自定义',
+    calculationMethod: '计算方法',
+    waldInterval: 'Wald区间',
+    wilsonInterval: 'Wilson得分区间',
+    calculateSingle: '计算单比例置信区间',
+    calculate: '计算',
+    calculateError: '无法计算结果，请检查输入值是否有效',
+    calculationResults: '计算结果',
+    sampleProportion: '样本比例 (p)：',
+    criticalValue: '临界值 (z*)：',
+    standardError: '标准误差：',
+    marginOfError: '误差范围：',
+    sampleProportion1: '样本比例 1 (p̂₁)：',
+    sampleProportion2: '样本比例 2 (p̂₂)：',
+    proportionDifference: '比例差异 (p̂₁ - p̂₂)：',
+    cannotCalculate: '无法计算',
+    population1: '总体 1',
+    population2: '总体 2',
+    successCount1: '成功次数 (y1)',
+    sampleSize1: '样本量 (n1)',
+    successCount2: '成功次数 (y2)',
+    sampleSize2: '样本量 (n2)',
+    continuityCorrection: '连续性校正',
+    exampleData: '示例数据',
+    randomData: '随机数据',
+    errors: {
+      fillAllFields: '请填写所有必填字段',
+      invalidNumbers: '请输入有效数字',
+      successCountRange: '成功次数必须在0到样本量之间',
+      sampleSizePositive: '样本量必须大于0',
+      confidenceLevelRange: '置信水平必须在0和1之间',
+      successCount1Range: '成功次数 y1 必须在0到 n1 之间',
+      successCount2Range: '成功次数 y2 必须在0到 n2 之间',
+      successCountTwoRange: '成功次数必须在0和对应的样本量之间',
+      calculationEmpty: '计算结果为空'
+    }
+  },
   mleMom: {
     title: '极大似然估计与矩估计',
     selectDistribution: '选择分布类型',
@@ -346,7 +451,8 @@ export default {
     estimationResults: '估计结果',
     mle: '极大似然估计 (MLE)',
     mom: '矩估计法 (MoM)',
-    estimationFailed: '估计计算失败: {{error}}'
+    estimationFailed: '估计计算失败: {{error}}',
+    parameters: '参数：'
   },
   errors: {
     validData: '请输入有效的数据',
@@ -447,7 +553,12 @@ export default {
     powerForGivenEffectSize: '给定效应大小的功效:',
     forEffectSize: '对于效应大小 (μ₁ - μ₀) = {effectSize}，样本量 n = {sampleSize}，显著性水平 α = {alpha}',
     requiredSampleSize80: '80% 功效所需的样本量:',
-    forEffectSizeAlphaPower: '对于效应大小 (μ₁ - μ₀) = {effectSize}，显著性水平 α = {alpha}，期望功效 0.80'
+    forEffectSizeAlphaPower: '对于效应大小 (μ₁ - μ₀) = {effectSize}，显著性水平 α = {alpha}，期望功效 0.80',
+    chartTitle: '功效函数 K(μ) 曲线',
+    chartXLabel: '真实均值 (μ)',
+    chartYLabel: '功效 K(μ)',
+    chartLegend: '功效函数 K(μ)',
+    chartFormula: '功效函数 K(μ) = 1 - Φ((c - μ) / (σ/√n))'
   },
   dataInputPanel: {
     fileUpload: '文件上传',

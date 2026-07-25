@@ -173,7 +173,7 @@ const DistributionGenerator: React.FC<DistributionGeneratorProps> = ({ onDataCha
         break;
       
       default:
-        throw new Error('Unsupported distribution type');
+        throw new Error(t('distribution.errorUnsupportedType'));
     }
     
     return data;

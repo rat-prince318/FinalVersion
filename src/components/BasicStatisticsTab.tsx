@@ -198,43 +198,43 @@ function BasicStatisticsTab({ dataset, basicStats: propsBasicStats }: BasicStati
         <Card>
           <CardBody>
             <Text fontSize="sm" color="gray.500">{t('statistics.mean')}</Text>
-            <Text fontSize="2xl" fontWeight="bold">{stats.mean !== undefined ? stats.mean.toFixed(4) : 'N/A'}</Text>
+            <Text fontSize="2xl" fontWeight="bold">{stats.mean !== undefined ? stats.mean.toFixed(4) : t('common.notAvailable')}</Text>
           </CardBody>
         </Card>
         <Card>
           <CardBody>
             <Text fontSize="sm" color="gray.500">{t('statistics.median')}</Text>
-            <Text fontSize="2xl" fontWeight="bold">{stats.median !== undefined ? stats.median.toFixed(4) : 'N/A'}</Text>
+            <Text fontSize="2xl" fontWeight="bold">{stats.median !== undefined ? stats.median.toFixed(4) : t('common.notAvailable')}</Text>
           </CardBody>
         </Card>
         <Card>
           <CardBody>
             <Text fontSize="sm" color="gray.500">{t('statistics.mode')}</Text>
-            <Text fontSize="2xl" fontWeight="bold">{stats.mode && stats.mode.length > 0 ? stats.mode.map(m => typeof m === 'number' ? m.toFixed(4) : m).join(', ') : 'No mode'}</Text>
+            <Text fontSize="2xl" fontWeight="bold">{stats.mode && stats.mode.length > 0 ? stats.mode.map(m => typeof m === 'number' ? m.toFixed(4) : m).join(', ') : t('common.noMode')}</Text>
           </CardBody>
         </Card>
         <Card>
           <CardBody>
             <Text fontSize="sm" color="gray.500">{t('statistics.standardDeviation')}</Text>
-            <Text fontSize="2xl" fontWeight="bold">{stats.std !== undefined ? stats.std.toFixed(4) : 'N/A'}</Text>
+            <Text fontSize="2xl" fontWeight="bold">{stats.std !== undefined ? stats.std.toFixed(4) : t('common.notAvailable')}</Text>
           </CardBody>
         </Card>
         <Card>
           <CardBody>
             <Text fontSize="sm" color="gray.500">{t('statistics.minimum')}</Text>
-            <Text fontSize="2xl" fontWeight="bold">{stats.min !== undefined ? stats.min.toFixed(4) : 'N/A'}</Text>
+            <Text fontSize="2xl" fontWeight="bold">{stats.min !== undefined ? stats.min.toFixed(4) : t('common.notAvailable')}</Text>
           </CardBody>
         </Card>
         <Card>
           <CardBody>
             <Text fontSize="sm" color="gray.500">{t('statistics.maximum')}</Text>
-            <Text fontSize="2xl" fontWeight="bold">{stats.max !== undefined ? stats.max.toFixed(4) : 'N/A'}</Text>
+            <Text fontSize="2xl" fontWeight="bold">{stats.max !== undefined ? stats.max.toFixed(4) : t('common.notAvailable')}</Text>
           </CardBody>
         </Card>
         <Card>
           <CardBody>
             <Text fontSize="sm" color="gray.500">{t('statistics.iqr')}</Text>
-            <Text fontSize="2xl" fontWeight="bold">{stats.iqr !== undefined ? stats.iqr.toFixed(4) : 'N/A'}</Text>
+            <Text fontSize="2xl" fontWeight="bold">{stats.iqr !== undefined ? stats.iqr.toFixed(4) : t('common.notAvailable')}</Text>
           </CardBody>
         </Card>
         <Card>
@@ -246,31 +246,31 @@ function BasicStatisticsTab({ dataset, basicStats: propsBasicStats }: BasicStati
         <Card>
           <CardBody>
             <Text fontSize="sm" color="gray.500">{t('confidenceInterval.lowerBound', { level: Math.round(ciOptions.confidenceLevel * 100) })}</Text>
-            <Text fontSize="2xl" fontWeight="bold">{stats.confidenceInterval?.lower !== undefined ? stats.confidenceInterval.lower.toFixed(4) : 'N/A'}</Text>
+            <Text fontSize="2xl" fontWeight="bold">{stats.confidenceInterval?.lower !== undefined ? stats.confidenceInterval.lower.toFixed(4) : t('common.notAvailable')}</Text>
           </CardBody>
         </Card>
         <Card>
           <CardBody>
             <Text fontSize="sm" color="gray.500">{t('confidenceInterval.upperBound', { level: Math.round(ciOptions.confidenceLevel * 100) })}</Text>
-            <Text fontSize="2xl" fontWeight="bold">{stats.confidenceInterval?.upper !== undefined ? stats.confidenceInterval.upper.toFixed(4) : 'N/A'}</Text>
+            <Text fontSize="2xl" fontWeight="bold">{stats.confidenceInterval?.upper !== undefined ? stats.confidenceInterval.upper.toFixed(4) : t('common.notAvailable')}</Text>
           </CardBody>
         </Card>
         <Card>
           <CardBody>
             <Text fontSize="sm" color="gray.500">{t('statistics.marginOfError')}</Text>
-            <Text fontSize="2xl" fontWeight="bold">{stats.confidenceInterval?.marginOfError !== undefined ? stats.confidenceInterval.marginOfError.toFixed(4) : 'N/A'}</Text>
+            <Text fontSize="2xl" fontWeight="bold">{stats.confidenceInterval?.marginOfError !== undefined ? stats.confidenceInterval.marginOfError.toFixed(4) : t('common.notAvailable')}</Text>
           </CardBody>
         </Card>
         <Card>
           <CardBody>
             <Text fontSize="sm" color="gray.500">{t('statistics.calculationMethod')}</Text>
-            <Text fontSize="2xl" fontWeight="bold">{stats.confidenceInterval?.method || 'N/A'}</Text>
+            <Text fontSize="2xl" fontWeight="bold">{stats.confidenceInterval?.method || t('common.notAvailable')}</Text>
           </CardBody>
         </Card>
         <Card>
           <CardBody>
             <Text fontSize="sm" color="gray.500">{t('statistics.criticalValue')}</Text>
-            <Text fontSize="2xl" fontWeight="bold">{stats.confidenceInterval?.criticalValue !== undefined ? stats.confidenceInterval.criticalValue.toFixed(4) : 'N/A'}</Text>
+            <Text fontSize="2xl" fontWeight="bold">{stats.confidenceInterval?.criticalValue !== undefined ? stats.confidenceInterval.criticalValue.toFixed(4) : t('common.notAvailable')}</Text>
           </CardBody>
         </Card>
       </Grid>

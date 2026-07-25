@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Box, Text, Tabs, Tab, FormControl, FormLabel, Input, Select, Button, Card, CardBody, Grid, Alert, AlertIcon, AlertDescription } from '@chakra-ui/react';
+import { useTranslation } from 'react-i18next';
 import { calculateProportionConfidenceInterval, calculateTwoProportionConfidenceInterval } from '../utils/statistics';
 
 interface ProportionCIComponentProps {
@@ -7,12 +8,14 @@ interface ProportionCIComponentProps {
 }
 
 const ProportionCIComponent: React.FC<ProportionCIComponentProps> = () => {
+  const { t } = useTranslation();
+
   // One proportion parameters
   const [singleSuccessCount, setSingleSuccessCount] = useState<string>('185');
   const [singleSampleSize, setSingleSampleSize] = useState<string>('351');
   const [singleConfidenceLevel, setSingleConfidenceLevel] = useState<string>('0.95');
   const [singleMethod, setSingleMethod] = useState<'wald' | 'wilson'>('wald');
-  
+
   // Two proportion parameters
   const [successCount1, setSuccessCount1] = useState<string>('45');
   const [sampleSize1, setSampleSize1] = useState<string>('100');
@@ -20,7 +23,7 @@ const ProportionCIComponent: React.FC<ProportionCIComponentProps> = () => {
   const [sampleSize2, setSampleSize2] = useState<string>('100');
   const [twoConfidenceLevel, setTwoConfidenceLevel] = useState<string>('0.95');
   const [twoMethod, setTwoMethod] = useState<'wald' | 'continuity'>('wald');
-  
+
   const [singleResults, setSingleResults] = useState<any>(null);
   const [twoResults, setTwoResults] = useState<any>(null);
   const [activeTab, setActiveTab] = useState<'single' | 'two'>('single');
@@ -28,7 +31,7 @@ const ProportionCIComponent: React.FC<ProportionCIComponentProps> = () => {
   const [twoError, setTwoError] = useState<string | null>(null);
   const [isSingleCalculated, setIsSingleCalculated] = useState(false);
   const [isTwoCalculated, setIsTwoCalculated] = useState(false);
-  
+
   // Set Example Data
   const setExampleData = () => {
     setSuccessCount1('45');
@@ -41,17 +44,17 @@ const ProportionCIComponent: React.FC<ProportionCIComponentProps> = () => {
     setTwoResults(null);
     setIsTwoCalculated(false);
   };
-  
+
   // Generate Random Data
   const generateRandomData = () => {
     const n1 = Math.floor(Math.random() * 50) + 50; // Sample size between 50-100
     const n2 = Math.floor(Math.random() * 50) + 50;
     const p1 = Math.random() * 0.8 + 0.1; // Probability between 0.1-0.9
     const p2 = Math.random() * 0.8 + 0.1;
-    
+
     const y1 = Math.floor(n1 * p1);
     const y2 = Math.floor(n2 * p2);
-    
+
     setSuccessCount1(y1.toString());
     setSampleSize1(n1.toString());
     setSuccessCount2(y2.toString());
@@ -66,40 +69,40 @@ const ProportionCIComponent: React.FC<ProportionCIComponentProps> = () => {
     setSingleError(null);
     setSingleResults(null);
     setIsSingleCalculated(true);
-    
+
     try {
       const successCount = parseInt(singleSuccessCount, 10);
       const n = parseInt(singleSampleSize, 10);
       const confidenceLevel = parseFloat(singleConfidenceLevel);
-      
+
       // Input validation
       if (!singleSuccessCount || !singleSampleSize || !singleConfidenceLevel) {
-        throw new Error('Please fill in all required fields');
+        throw new Error(t('proportionCI.errors.fillAllFields'));
       }
-      
+
       if (isNaN(successCount) || isNaN(n) || isNaN(confidenceLevel)) {
-        throw new Error('Please enter valid numbers');
+        throw new Error(t('proportionCI.errors.invalidNumbers'));
       }
-      
+
       if (n <= 0) {
-        throw new Error('Sample size must be greater than 0');
+        throw new Error(t('proportionCI.errors.sampleSizePositive'));
       }
-      
+
       if (successCount < 0 || successCount > n) {
-        throw new Error('Number of successes must be between 0 and sample size');
+        throw new Error(t('proportionCI.errors.successCountRange'));
       }
-      
+
       if (confidenceLevel <= 0 || confidenceLevel >= 1) {
-        throw new Error('Confidence level must be between 0 and 1');
+        throw new Error(t('proportionCI.errors.confidenceLevelRange'));
       }
-      
+
       // Call statistical function and get results
       const results = calculateProportionConfidenceInterval(successCount, n, confidenceLevel, { method: singleMethod });
-      
+
       // Convert result format to match component expected property names
       // Calculate standard error
       const standardError = Math.sqrt((results.proportion * (1 - results.proportion)) / n);
-      
+
       const formattedResults = {
         ...results,
         sampleProportion: results.proportion,
@@ -108,7 +111,7 @@ const ProportionCIComponent: React.FC<ProportionCIComponentProps> = () => {
         confidenceLevel: confidenceLevel,
         standardError: standardError
       };
-      
+
       setSingleResults(formattedResults);
     } catch (error) {
       setSingleError((error as Error).message);
@@ -120,54 +123,54 @@ const ProportionCIComponent: React.FC<ProportionCIComponentProps> = () => {
     setTwoError('');
     setTwoResults(null);
     setIsTwoCalculated(true);
-    
+
     try {
       const y1 = parseInt(successCount1, 10);
       const n1 = parseInt(sampleSize1, 10);
       const y2 = parseInt(successCount2, 10);
       const n2 = parseInt(sampleSize2, 10);
       const confidenceLevel = parseFloat(twoConfidenceLevel);
-      
+
       // Input validation
       if (!successCount1 || !sampleSize1 || !successCount2 || !sampleSize2 || !twoConfidenceLevel) {
-        throw new Error('Please fill in all required fields');
+        throw new Error(t('proportionCI.errors.fillAllFields'));
       }
-      
+
       if (isNaN(y1) || isNaN(n1) || isNaN(y2) || isNaN(n2) || isNaN(confidenceLevel)) {
-        throw new Error('Please enter valid numbers');
+        throw new Error(t('proportionCI.errors.invalidNumbers'));
       }
-      
+
       if (n1 <= 0 || n2 <= 0) {
-        throw new Error('Sample size must be greater than 0');
+        throw new Error(t('proportionCI.errors.sampleSizePositive'));
       }
-      
+
       if (y1 < 0 || y1 > n1 || y2 < 0 || y2 > n2) {
-        throw new Error('Number of successes must be between 0 and corresponding sample size');
+        throw new Error(t('proportionCI.errors.successCountTwoRange'));
       }
-      
+
       if (confidenceLevel <= 0 || confidenceLevel >= 1) {
-        throw new Error('Confidence level must be between 0 and 1');
+        throw new Error(t('proportionCI.errors.confidenceLevelRange'));
       }
-      
+
       // Calculate sample proportions
       const p1 = y1 / n1;
       const p2 = y2 / n2;
-      
+
       // Call statistical function and get results, ensure options object is correctly passed
       const results = calculateTwoProportionConfidenceInterval(
-        y1, 
-        n1, 
-        y2, 
-        n2, 
-        confidenceLevel, 
+        y1,
+        n1,
+        y2,
+        n2,
+        confidenceLevel,
         { method: twoMethod }
       );
-      
+
       // Ensure results exist
       if (!results) {
-        throw new Error('Calculation result is empty');
+        throw new Error(t('proportionCI.errors.calculationEmpty'));
       }
-      
+
       // Convert result format to match component expected property names
       const formattedResults = {
         sampleProportion1: p1,
@@ -181,7 +184,7 @@ const ProportionCIComponent: React.FC<ProportionCIComponentProps> = () => {
         standardError: Math.sqrt((p1 * (1 - p1)) / n1 + (p2 * (1 - p2)) / n2),
         marginOfError: results.marginOfError || null
       };
-      
+
       // Ensure results are set
       setTwoResults(formattedResults);
     } catch (error) {
@@ -192,12 +195,12 @@ const ProportionCIComponent: React.FC<ProportionCIComponentProps> = () => {
 
   return (
     <Box p={6} bg="white" rounded="lg" shadow="md">
-      <Text fontSize="xl" fontWeight="bold" mb={6} textAlign="center">Proportion Confidence Interval Calculation</Text>
-      
+      <Text fontSize="xl" fontWeight="bold" mb={6} textAlign="center">{t('proportionCI.title')}</Text>
+
       <Tabs index={activeTab === 'single' ? 0 : 1} onChange={(index) => setActiveTab(index === 0 ? 'single' : 'two')} mb={6}>
         <Box borderBottomWidth="1px" borderBottomColor="gray.200">
-          <Tab px={4} py={2}>Single Proportion CI</Tab>
-          <Tab px={4} py={2}>Two Proportion Difference CI</Tab>
+          <Tab px={4} py={2}>{t('proportionCI.singleTab')}</Tab>
+          <Tab px={4} py={2}>{t('proportionCI.twoTab')}</Tab>
         </Box>
       </Tabs>
 
@@ -205,7 +208,7 @@ const ProportionCIComponent: React.FC<ProportionCIComponentProps> = () => {
         <Box>
           <Grid templateColumns={{ base: '1fr', md: 'repeat(2, 1fr)' }} gap={6} mb={6}>
             <FormControl>
-              <FormLabel fontSize="sm">Success Count (y)</FormLabel>
+              <FormLabel fontSize="sm">{t('proportionCI.successCount')}</FormLabel>
               <Input
                 type="number"
                 value={singleSuccessCount}
@@ -214,7 +217,7 @@ const ProportionCIComponent: React.FC<ProportionCIComponentProps> = () => {
               />
             </FormControl>
             <FormControl>
-              <FormLabel fontSize="sm">Sample Size (n)</FormLabel>
+              <FormLabel fontSize="sm">{t('proportionCI.sampleSize')}</FormLabel>
               <Input
                 type="number"
                 value={singleSampleSize}
@@ -223,7 +226,7 @@ const ProportionCIComponent: React.FC<ProportionCIComponentProps> = () => {
               />
             </FormControl>
             <FormControl>
-              <FormLabel fontSize="sm">Confidence Level</FormLabel>
+              <FormLabel fontSize="sm">{t('proportionCI.confidenceLevel')}</FormLabel>
               <Select
                 value={singleConfidenceLevel}
                 onChange={(e) => setSingleConfidenceLevel(e.target.value)}
@@ -231,7 +234,7 @@ const ProportionCIComponent: React.FC<ProportionCIComponentProps> = () => {
                 <option value="0.90">90%</option>
                 <option value="0.95">95%</option>
                 <option value="0.99">99%</option>
-                <option value="">Custom</option>
+                <option value="">{t('proportionCI.custom')}</option>
               </Select>
               {singleConfidenceLevel && !['0.90', '0.95', '0.99'].includes(singleConfidenceLevel) && (
                 <Input
@@ -246,13 +249,13 @@ const ProportionCIComponent: React.FC<ProportionCIComponentProps> = () => {
               )}
             </FormControl>
             <FormControl>
-              <FormLabel fontSize="sm">Calculation Method</FormLabel>
+              <FormLabel fontSize="sm">{t('proportionCI.calculationMethod')}</FormLabel>
               <Select
                 value={singleMethod}
                 onChange={(e) => setSingleMethod(e.target.value as 'wald' | 'wilson')}
               >
-                <option value="wald">Wald Interval</option>
-                <option value="wilson">Wilson Score Interval</option>
+                <option value="wald">{t('proportionCI.waldInterval')}</option>
+                <option value="wilson">{t('proportionCI.wilsonInterval')}</option>
               </Select>
             </FormControl>
           </Grid>
@@ -264,10 +267,10 @@ const ProportionCIComponent: React.FC<ProportionCIComponentProps> = () => {
               size="lg"
               width="100%"
             >
-              Calculate Single Proportion CI
+              {t('proportionCI.calculateSingle')}
             </Button>
           </Box>
-          
+
           {/* Error message */}
           {singleError && (
             <Alert status="error" mt={4}>
@@ -275,44 +278,44 @@ const ProportionCIComponent: React.FC<ProportionCIComponentProps> = () => {
               <AlertDescription>{singleError}</AlertDescription>
             </Alert>
           )}
-          
+
           {/* Prompt message */}
           {isSingleCalculated && !singleError && !singleResults && (
             <Alert status="warning" mt={4}>
               <AlertIcon />
-              <AlertDescription>Unable to calculate results, please check if input values are valid</AlertDescription>
+              <AlertDescription>{t('proportionCI.calculateError')}</AlertDescription>
             </Alert>
           )}
-          
+
           {/* Calculation results */}
           {singleResults && (
             <Card mt={6}>
               <CardBody>
-                <Text fontSize="lg" fontWeight="semibold" mb={4}>Calculation Results</Text>
+                <Text fontSize="lg" fontWeight="semibold" mb={4}>{t('proportionCI.calculationResults')}</Text>
                 <Grid templateColumns={{ base: '1fr', md: 'repeat(2, 1fr)' }} gap={4}>
                   <Box>
-                    <Text fontSize="sm" color="gray.600">Sample Proportion (̂p):</Text>
-                    <Text fontWeight="medium">{singleResults.sampleProportion ? singleResults.sampleProportion.toFixed(4) : 'Cannot calculate'}</Text>
+                    <Text fontSize="sm" color="gray.600">{t('proportionCI.sampleProportion')}</Text>
+                    <Text fontWeight="medium">{singleResults.sampleProportion ? singleResults.sampleProportion.toFixed(4) : t('proportionCI.cannotCalculate')}</Text>
                   </Box>
                   <Box>
-                    <Text fontSize="sm" color="gray.600">Critical Value (z*):</Text>
-                    <Text fontWeight="medium">{singleResults.criticalValue ? singleResults.criticalValue.toFixed(4) : 'Cannot calculate'}</Text>
+                    <Text fontSize="sm" color="gray.600">{t('proportionCI.criticalValue')}</Text>
+                    <Text fontWeight="medium">{singleResults.criticalValue ? singleResults.criticalValue.toFixed(4) : t('proportionCI.cannotCalculate')}</Text>
                   </Box>
                   <Box>
-                    <Text fontSize="sm" color="gray.600">Standard Error:</Text>
-                    <Text fontWeight="medium">{singleResults.standardError ? singleResults.standardError.toFixed(6) : 'Cannot calculate'}</Text>
+                    <Text fontSize="sm" color="gray.600">{t('proportionCI.standardError')}</Text>
+                    <Text fontWeight="medium">{singleResults.standardError ? singleResults.standardError.toFixed(6) : t('proportionCI.cannotCalculate')}</Text>
                   </Box>
                   <Box>
-                    <Text fontSize="sm" color="gray.600">Margin of Error:</Text>
-                    <Text fontWeight="medium">{singleResults.marginOfError ? singleResults.marginOfError.toFixed(4) : 'Cannot calculate'}</Text>
+                    <Text fontSize="sm" color="gray.600">{t('proportionCI.marginOfError')}</Text>
+                    <Text fontWeight="medium">{singleResults.marginOfError ? singleResults.marginOfError.toFixed(4) : t('proportionCI.cannotCalculate')}</Text>
                   </Box>
                 </Grid>
                 <Box mt={4}>
-                  <Text fontSize="sm" color="gray.600">{singleResults.confidenceLevel ? singleResults.confidenceLevel * 100 : '--'}% Confidence Interval:</Text>
+                  <Text fontSize="sm" color="gray.600">{singleResults.confidenceLevel ? singleResults.confidenceLevel * 100 : t('common.notAvailable')}% Confidence Interval:</Text>
                   <Text fontWeight="bold" fontSize="lg">
-                    {singleResults.lowerBound !== undefined && singleResults.upperBound !== undefined 
-                      ? `[${singleResults.lowerBound.toFixed(4)}, ${singleResults.upperBound.toFixed(4)}]` 
-                      : 'Cannot calculate'
+                    {singleResults.lowerBound !== undefined && singleResults.upperBound !== undefined
+                      ? `[${singleResults.lowerBound.toFixed(4)}, ${singleResults.upperBound.toFixed(4)}]`
+                      : t('proportionCI.cannotCalculate')
                     }
                   </Text>
                 </Box>
@@ -326,10 +329,10 @@ const ProportionCIComponent: React.FC<ProportionCIComponentProps> = () => {
         <Box>
           <Grid templateColumns={{ base: '1fr', md: 'repeat(2, 1fr)' }} gap={6} mb={6}>
             <Box>
-              <Text fontSize="sm" fontWeight="medium" color="gray.700" mb={3}>Population 1</Text>
+              <Text fontSize="sm" fontWeight="medium" color="gray.700" mb={3}>{t('proportionCI.population1')}</Text>
               <Grid gap={4}>
                 <FormControl>
-                  <FormLabel fontSize="xs" color="gray.500">Success Count (y₁)</FormLabel>
+                  <FormLabel fontSize="xs" color="gray.500">{t('proportionCI.successCount1')}</FormLabel>
                   <Input
                     type="number"
                     value={successCount1}
@@ -338,7 +341,7 @@ const ProportionCIComponent: React.FC<ProportionCIComponentProps> = () => {
                   />
                 </FormControl>
                 <FormControl>
-                  <FormLabel fontSize="xs" color="gray.500">Sample Size (n₁)</FormLabel>
+                  <FormLabel fontSize="xs" color="gray.500">{t('proportionCI.sampleSize1')}</FormLabel>
                   <Input
                     type="number"
                     value={sampleSize1}
@@ -349,10 +352,10 @@ const ProportionCIComponent: React.FC<ProportionCIComponentProps> = () => {
               </Grid>
             </Box>
             <Box>
-              <Text fontSize="sm" fontWeight="medium" color="gray.700" mb={3}>Population 2</Text>
+              <Text fontSize="sm" fontWeight="medium" color="gray.700" mb={3}>{t('proportionCI.population2')}</Text>
               <Grid gap={4}>
                 <FormControl>
-                  <FormLabel fontSize="xs" color="gray.500">Success Count (y₂)</FormLabel>
+                  <FormLabel fontSize="xs" color="gray.500">{t('proportionCI.successCount2')}</FormLabel>
                   <Input
                     type="number"
                     value={successCount2}
@@ -361,7 +364,7 @@ const ProportionCIComponent: React.FC<ProportionCIComponentProps> = () => {
                   />
                 </FormControl>
                 <FormControl>
-                  <FormLabel fontSize="xs" color="gray.500">Sample Size (n₂)</FormLabel>
+                  <FormLabel fontSize="xs" color="gray.500">{t('proportionCI.sampleSize2')}</FormLabel>
                   <Input
                     type="number"
                     value={sampleSize2}
@@ -372,7 +375,7 @@ const ProportionCIComponent: React.FC<ProportionCIComponentProps> = () => {
               </Grid>
             </Box>
             <FormControl>
-              <FormLabel fontSize="sm">Confidence Level</FormLabel>
+              <FormLabel fontSize="sm">{t('proportionCI.confidenceLevel')}</FormLabel>
               <Select
                 value={twoConfidenceLevel}
                 onChange={(e) => setTwoConfidenceLevel(e.target.value)}
@@ -380,7 +383,7 @@ const ProportionCIComponent: React.FC<ProportionCIComponentProps> = () => {
                 <option value="0.90">90%</option>
                 <option value="0.95">95%</option>
                 <option value="0.99">99%</option>
-                <option value="">Custom</option>
+                <option value="">{t('proportionCI.custom')}</option>
               </Select>
               {twoConfidenceLevel && !['0.90', '0.95', '0.99'].includes(twoConfidenceLevel) && (
                 <Input
@@ -395,13 +398,13 @@ const ProportionCIComponent: React.FC<ProportionCIComponentProps> = () => {
               )}
             </FormControl>
             <FormControl>
-              <FormLabel fontSize="sm">Calculation Method</FormLabel>
+              <FormLabel fontSize="sm">{t('proportionCI.calculationMethod')}</FormLabel>
               <Select
                 value={twoMethod}
                 onChange={(e) => setTwoMethod(e.target.value as 'wald' | 'continuity')}
               >
-                <option value="wald">Wald Interval</option>
-                <option value="continuity">Continuity Correction</option>
+                <option value="wald">{t('proportionCI.waldInterval')}</option>
+                <option value="continuity">{t('proportionCI.continuityCorrection')}</option>
               </Select>
             </FormControl>
           </Grid>
@@ -413,7 +416,7 @@ const ProportionCIComponent: React.FC<ProportionCIComponentProps> = () => {
               size="lg"
               width="100%"
             >
-              Example Data
+              {t('proportionCI.exampleData')}
             </Button>
             <Button
               onClick={generateRandomData}
@@ -421,7 +424,7 @@ const ProportionCIComponent: React.FC<ProportionCIComponentProps> = () => {
               size="lg"
               width="100%"
             >
-              Random Data
+              {t('proportionCI.randomData')}
             </Button>
             <Button
               onClick={handleTwoProportionCalculate}
@@ -429,10 +432,10 @@ const ProportionCIComponent: React.FC<ProportionCIComponentProps> = () => {
               size="lg"
               width="100%"
             >
-              Calculate
+              {t('proportionCI.calculate')}
             </Button>
           </Grid>
-          
+
           {/* Error message */}
           {twoError && (
             <Alert status="error" mt={4}>
@@ -440,52 +443,52 @@ const ProportionCIComponent: React.FC<ProportionCIComponentProps> = () => {
               <AlertDescription>{twoError}</AlertDescription>
             </Alert>
           )}
-          
+
           {/* Prompt message */}
           {isTwoCalculated && !twoError && !twoResults && (
             <Alert status="warning" mt={4}>
               <AlertIcon />
-              <AlertDescription>Unable to calculate results, please check if input values are valid</AlertDescription>
+              <AlertDescription>{t('proportionCI.calculateError')}</AlertDescription>
             </Alert>
           )}
-          
+
           {/* Calculation results */}
           {twoResults && (
             <Card mt={6}>
               <CardBody>
-                <Text fontSize="lg" fontWeight="semibold" mb={4}>Calculation Results</Text>
+                <Text fontSize="lg" fontWeight="semibold" mb={4}>{t('proportionCI.calculationResults')}</Text>
                 <Grid templateColumns={{ base: '1fr', md: 'repeat(2, 1fr)' }} gap={4}>
                   <Box>
-                    <Text fontSize="sm" color="gray.600">Sample Proportion 1 (̂p₁):</Text>
-                    <Text fontWeight="medium">{twoResults.sampleProportion1 ? twoResults.sampleProportion1.toFixed(4) : 'Cannot calculate'}</Text>
+                    <Text fontSize="sm" color="gray.600">{t('proportionCI.sampleProportion1')}</Text>
+                    <Text fontWeight="medium">{twoResults.sampleProportion1 ? twoResults.sampleProportion1.toFixed(4) : t('proportionCI.cannotCalculate')}</Text>
                   </Box>
                   <Box>
-                    <Text fontSize="sm" color="gray.600">Sample Proportion 2 (̂p₂):</Text>
-                    <Text fontWeight="medium">{twoResults.sampleProportion2 ? twoResults.sampleProportion2.toFixed(4) : 'Cannot calculate'}</Text>
+                    <Text fontSize="sm" color="gray.600">{t('proportionCI.sampleProportion2')}</Text>
+                    <Text fontWeight="medium">{twoResults.sampleProportion2 ? twoResults.sampleProportion2.toFixed(4) : t('proportionCI.cannotCalculate')}</Text>
                   </Box>
                   <Box>
-                    <Text fontSize="sm" color="gray.600">Proportion Difference (̂p₁ - ̂p₂):</Text>
-                    <Text fontWeight="medium">{twoResults.proportionDifference ? twoResults.proportionDifference.toFixed(4) : 'Cannot calculate'}</Text>
+                    <Text fontSize="sm" color="gray.600">{t('proportionCI.proportionDifference')}</Text>
+                    <Text fontWeight="medium">{twoResults.proportionDifference ? twoResults.proportionDifference.toFixed(4) : t('proportionCI.cannotCalculate')}</Text>
                   </Box>
                   <Box>
-                    <Text fontSize="sm" color="gray.600">Critical Value (z*):</Text>
-                    <Text fontWeight="medium">{twoResults.criticalValue ? twoResults.criticalValue.toFixed(4) : 'Cannot calculate'}</Text>
+                    <Text fontSize="sm" color="gray.600">{t('proportionCI.criticalValue')}</Text>
+                    <Text fontWeight="medium">{twoResults.criticalValue ? twoResults.criticalValue.toFixed(4) : t('proportionCI.cannotCalculate')}</Text>
                   </Box>
                   <Box>
-                    <Text fontSize="sm" color="gray.600">Standard Error:</Text>
-                    <Text fontWeight="medium">{twoResults.standardError ? twoResults.standardError.toFixed(6) : 'Cannot calculate'}</Text>
+                    <Text fontSize="sm" color="gray.600">{t('proportionCI.standardError')}</Text>
+                    <Text fontWeight="medium">{twoResults.standardError ? twoResults.standardError.toFixed(6) : t('proportionCI.cannotCalculate')}</Text>
                   </Box>
                   <Box>
-                    <Text fontSize="sm" color="gray.600">Margin of Error:</Text>
-                    <Text fontWeight="medium">{twoResults.marginOfError ? twoResults.marginOfError.toFixed(4) : 'Cannot calculate'}</Text>
+                    <Text fontSize="sm" color="gray.600">{t('proportionCI.marginOfError')}</Text>
+                    <Text fontWeight="medium">{twoResults.marginOfError ? twoResults.marginOfError.toFixed(4) : t('proportionCI.cannotCalculate')}</Text>
                   </Box>
                 </Grid>
                 <Box mt={4}>
-                  <Text fontSize="sm" color="gray.600">{twoResults.confidenceLevel ? twoResults.confidenceLevel * 100 : '--'}% Confidence Interval:</Text>
+                  <Text fontSize="sm" color="gray.600">{twoResults.confidenceLevel ? twoResults.confidenceLevel * 100 : t('common.notAvailable')}% Confidence Interval:</Text>
                   <Text fontWeight="bold" fontSize="lg">
-                    {twoResults.lowerBound !== undefined && twoResults.upperBound !== undefined 
-                      ? `[${twoResults.lowerBound.toFixed(4)}, ${twoResults.upperBound.toFixed(4)}]` 
-                      : 'Cannot calculate'
+                    {twoResults.lowerBound !== undefined && twoResults.upperBound !== undefined
+                      ? `[${twoResults.lowerBound.toFixed(4)}, ${twoResults.upperBound.toFixed(4)}]`
+                      : t('proportionCI.cannotCalculate')
                     }
                   </Text>
                 </Box>

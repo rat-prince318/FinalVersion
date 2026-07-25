@@ -1,0 +1,11 @@
+{
+  "version": 1,
+  "skills": {
+    "specs-code-cleanup": {
+      "source": "giuseppe-trisciuoglio/developer-kit",
+      "sourceType": "github",
+      "skillPath": "plugins/developer-kit-specs/skills/specs-code-cleanup/SKILL.md",
+      "computedHash": "71122c402bdb3780145bc4d86e26852e61ca683d675d8ff5b339690aaae94b18"
+    }
+  }
+}

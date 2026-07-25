@@ -1,4 +1,5 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend, ReferenceLine, ReferenceDot } from 'recharts';
 import { Box, Text } from '@chakra-ui/react';
 
@@ -15,14 +16,18 @@ interface PowerFunctionChartProps {
 
 const PowerFunctionChart: React.FC<PowerFunctionChartProps> = ({
   powerData,
-  title = 'Curve of the Power Function K(μ)',
-  xLabel = 'True Mean (μ)',
-  yLabel = 'Power K(μ)',
+  title,
+  xLabel,
+  yLabel,
   mu0 = 0,
   alpha = 0.05,
   beta = 0.2,
   effectSize = 0.5
 }) => {
+  const { t } = useTranslation();
+  const displayTitle = title || t('powerFunction.chartTitle');
+  const displayXLabel = xLabel || t('powerFunction.chartXLabel');
+  const displayYLabel = yLabel || t('powerFunction.chartYLabel');
   // Find the point where mu is closest to mu0 for alpha
   const alphaPoint = powerData.reduce((prev, curr) => 
     Math.abs(curr.mu - mu0) < Math.abs(prev.mu - mu0) ? curr : prev
@@ -35,7 +40,7 @@ const PowerFunctionChart: React.FC<PowerFunctionChartProps> = ({
 
   return (
     <Box textAlign="center" p={4} bg="white" borderRadius="md" shadow="md">
-      <Text fontSize="xl" fontWeight="bold" mb={4} color="navy.800">{title}</Text>
+      <Text fontSize="xl" fontWeight="bold" mb={4} color="navy.800">{displayTitle}</Text>
       <Box height="400px" width="100%">
         <ResponsiveContainer width="100%" height="100%">
           <LineChart
@@ -45,19 +50,19 @@ const PowerFunctionChart: React.FC<PowerFunctionChartProps> = ({
             <CartesianGrid strokeDasharray="3 3" stroke="#e0e0e0" />
             <XAxis
               dataKey="mu"
-              label={{ value: xLabel, position: 'insideBottom', offset: -10, fontSize: 14, fontWeight: 'bold' }}
+              label={{ value: displayXLabel, position: 'insideBottom', offset: -10, fontSize: 14, fontWeight: 'bold' }}
               domain={['auto', 'auto']}
               tickFormatter={(value) => value.toFixed(1)}
               tick={{ fontSize: 12 }}
             />
             <YAxis
               domain={[0, 1]}
-              label={{ value: yLabel, angle: -90, position: 'insideLeft', fontSize: 14, fontWeight: 'bold' }}
+              label={{ value: displayYLabel, angle: -90, position: 'insideLeft', fontSize: 14, fontWeight: 'bold' }}
               tickFormatter={(value) => value.toFixed(2)}
               tick={{ fontSize: 12 }}
             />
             <Tooltip
-              formatter={(value) => [Number(value).toFixed(4), 'Power']}
+              formatter={(value) => [Number(value).toFixed(4), t('powerFunction.chartYLabel')]}
               labelFormatter={(value) => `μ = ${parseFloat(value as string).toFixed(4)}`}
               contentStyle={{ backgroundColor: 'white', border: '1px solid #ccc' }}
             />
@@ -67,7 +72,7 @@ const PowerFunctionChart: React.FC<PowerFunctionChartProps> = ({
             <Line
               type="monotone"
               dataKey="power"
-              name="Power Function K(μ)"
+              name={t('powerFunction.chartLegend')}
               stroke="#3b82f6"
               strokeWidth={3}
               dot={{ r: 0 }}
@@ -89,7 +94,7 @@ const PowerFunctionChart: React.FC<PowerFunctionChartProps> = ({
       
       {/* Mathematical expression */}
       <Text fontSize="lg" fontWeight="medium" mt={6} color="gray.700">
-        Power function K(μ) = 1 - Φ((c - μ) / (σ/√n))
+        {t('powerFunction.chartFormula')}
       </Text>
     </Box>
   );

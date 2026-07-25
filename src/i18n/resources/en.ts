@@ -10,7 +10,10 @@ export default {
     info: 'Info',
     warning: 'Warning',
     calculate: 'Calculate',
-    calculateCI: 'Calculate Confidence Interval'
+    calculateCI: 'Calculate Confidence Interval',
+    notAvailable: 'N/A',
+    noMode: 'No mode',
+    parameters: 'Parameters:'
   },
   app: {
     title: 'Statistical Analysis Tool',
@@ -50,7 +53,8 @@ export default {
     selectedDatasets: 'Currently selected {{count}} dataset(s):',
     multipleSelected: 'Multiple datasets selected. All datasets will be merged for analysis.',
     noDatasets: 'No saved datasets yet. Generate data to save',
-    dataUpdated: 'Data has been updated. You can start analysis or save'
+    dataUpdated: 'Data has been updated. You can start analysis or save',
+    defaultName: 'Dataset'
   },
   statistics: {
     analysis: 'Statistical Analysis',
@@ -127,6 +131,7 @@ export default {
     continuityCorrection: 'Continuity Correction',
     value: 'Value',
     resultInterpretation: 'Result Interpretation',
+    statsModeNotImplemented: 'Statistical input mode not yet implemented',
     twoProportionInterpretation1: 'We are {percent}% confident that the difference between the two population proportions lies between [{lower}%, {upper}%].',
     twoProportionInterpretation2: 'This indicates that the proportion in the first population is significantly higher than in the second population.',
     twoProportionInterpretation3: 'This indicates that the proportion in the first population is significantly lower than in the second population.',
@@ -187,7 +192,8 @@ export default {
     errorUniform: 'Minimum value must be less than maximum value for uniform distribution',
     parameterDescription: 'Parameter Description',
     instructionsTitle: 'Instructions',
-    enterParam: 'Enter {{param}}'
+    enterParam: 'Enter {{param}}',
+    errorUnsupportedType: 'Unsupported distribution type'
   },
   hypothesisTesting: {
     title: 'Hypothesis Testing',
@@ -268,6 +274,11 @@ export default {
       invalidEstimatedStd: 'Estimated standard deviation must be greater than 0',
       invalidProportion: 'Estimated proportion must be between 0 and 1',
       calculationError: 'An error occurred during calculation'
+    },
+    placeholders: {
+      confidenceLevel: 'e.g., 0.95',
+      marginOfError: 'e.g., 0.03',
+      proportion: 'e.g., 0.65'
     }
   },
   goodnessOfFit: {
@@ -313,6 +324,36 @@ export default {
     rejectH0: 'Reject H₀',
     failToRejectH0: 'Fail to Reject H₀',
     note: 'Note: A larger p-value indicates that the data better fits the distribution. The result ranked first is the most recommended distribution type.',
+    distributionDescriptions: {
+      normal: 'Bell-shaped symmetric distribution',
+      uniform: 'Constant probability over an interval',
+      exponential: 'Memoryless distribution for waiting times',
+      poisson: 'Discrete distribution for counting events',
+      binomial: 'Discrete distribution for number of successes in fixed trials'
+    },
+    methodNames: {
+      kolmogorovSmirnov: 'Kolmogorov-Smirnov Test',
+      chiSquare: 'Chi-Square Goodness-of-Fit Test',
+      andersonDarling: 'Anderson-Darling Test',
+      jarqueBera: 'Jarque-Bera Test'
+    },
+    methodDescriptions: {
+      kolmogorovSmirnov: 'Non-parametric test comparing empirical and theoretical CDFs',
+      chiSquare: 'Compares observed frequencies with expected frequencies',
+      andersonDarling: 'Gives more weight to tails than K-S test',
+      jarqueBera: 'Tests if sample skewness and kurtosis match a normal distribution'
+    },
+    actualDistributionVerification: 'Actual Distribution Verification',
+    test: 'Test: ',
+    distributionLabel: 'Distribution: ',
+    sampleSizeLabel: 'Sample Size: ',
+    significanceLevelLabel: 'Significance Level: ',
+    degreesOfFreedomLabel: 'Degrees of Freedom: ',
+    testStatisticLabel: 'Test Statistic: ',
+    pValueLabel: 'P-value: ',
+    criticalValueLabel: 'Critical Value: ',
+    rejectH0Short: 'Reject H0',
+    failToRejectH0Short: 'Fail to Reject H0',
     conclusion: 'Conclusion: {{conclusion}}',
     interpretation: 'Interpretation: {{interpretation}}',
     rejectInterpretation: 'The data does NOT follow the specified distribution',
@@ -337,6 +378,70 @@ export default {
       notApplicable: 'The selected test method ({{method}}) is not applicable to the {{distribution}}. Please select a compatible test method.'
     }
   },
+  qqPlot: {
+    title: 'QQ Plot',
+    theoreticalQuantile: 'Theoretical Quantile',
+    empiricalQuantile: 'Empirical Quantile',
+    idealFitLine: 'Ideal Fit Line',
+    dataPoints: 'Data Points',
+    theoreticalQuantileLabel: 'Theoretical Quantile: ',
+    empiricalQuantileLabel: 'Empirical Quantile: '
+  },
+  pairedDataGenerator: {
+    sampleSize: 'Sample Size (n)',
+    preTestMean: 'Pre-test Mean (μ1)',
+    meanDifference: 'Mean Difference (μ2 - μ1)',
+    standardDeviation: 'Standard Deviation (σ)',
+    correlationCoefficient: 'Correlation Coefficient (r)',
+    correlationHint: 'It is recommended to use a high positive correlation coefficient (0.6-0.9) to simulate realistic paired data',
+    generateButton: 'Generate Paired Data',
+    invalidParams: 'Please enter valid parameter values',
+    generationError: 'Error during data generation'
+  },
+  proportionCI: {
+    title: 'Proportion Confidence Interval Calculation',
+    singleTab: 'Single Proportion CI',
+    twoTab: 'Two Proportion Difference CI',
+    successCount: 'Success Count (y)',
+    sampleSize: 'Sample Size (n)',
+    confidenceLevel: 'Confidence Level',
+    custom: 'Custom',
+    calculationMethod: 'Calculation Method',
+    waldInterval: 'Wald Interval',
+    wilsonInterval: 'Wilson Score Interval',
+    calculateSingle: 'Calculate Single Proportion CI',
+    calculate: 'Calculate',
+    calculateError: 'Unable to calculate results, please check if input values are valid',
+    calculationResults: 'Calculation Results',
+    sampleProportion: 'Sample Proportion (p):',
+    criticalValue: 'Critical Value (z*):',
+    standardError: 'Standard Error:',
+    marginOfError: 'Margin of Error:',
+    sampleProportion1: 'Sample Proportion 1 (p̂₁):',
+    sampleProportion2: 'Sample Proportion 2 (p̂₂):',
+    proportionDifference: 'Proportion Difference (p̂₁ - p̂₂):',
+    cannotCalculate: 'Cannot calculate',
+    population1: 'Population 1',
+    population2: 'Population 2',
+    successCount1: 'Success Count (y1)',
+    sampleSize1: 'Sample Size (n1)',
+    successCount2: 'Success Count (y2)',
+    sampleSize2: 'Sample Size (n2)',
+    continuityCorrection: 'Continuity Correction',
+    exampleData: 'Example Data',
+    randomData: 'Random Data',
+    errors: {
+      fillAllFields: 'Please fill in all required fields',
+      invalidNumbers: 'Please enter valid numbers',
+      successCountRange: 'Success count must be between 0 and sample size',
+      sampleSizePositive: 'Sample size must be greater than 0',
+      confidenceLevelRange: 'Confidence level must be between 0 and 1',
+      successCount1Range: 'Success count y1 must be between 0 and n1',
+      successCount2Range: 'Success count y2 must be between 0 and n2',
+      successCountTwoRange: 'Number of successes must be between 0 and corresponding sample size',
+      calculationEmpty: 'Calculation result is empty'
+    }
+  },
   mleMom: {
     title: 'Maximum Likelihood Estimation & Method of Moments',
     selectDistribution: 'Select Distribution Type',
@@ -346,7 +451,8 @@ export default {
     estimationResults: 'Estimation Results',
     mle: 'Maximum Likelihood Estimation (MLE)',
     mom: 'Method of Moments (MoM)',
-    estimationFailed: 'Estimation calculation failed: {{error}}'
+    estimationFailed: 'Estimation calculation failed: {{error}}',
+    parameters: 'Parameters:'
   },
   errors: {
     validData: 'Please enter valid data',
@@ -447,7 +553,12 @@ export default {
     powerForGivenEffectSize: 'Power for Given Effect Size:',
     forEffectSize: 'For effect size (μ₁ - μ₀) = {effectSize}, sample size n = {sampleSize}, and significance level α = {alpha}',
     requiredSampleSize80: 'Required Sample Size for 80% Power:',
-    forEffectSizeAlphaPower: 'For effect size (μ₁ - μ₀) = {effectSize}, significance level α = {alpha}, and desired power 0.80'
+    forEffectSizeAlphaPower: 'For effect size (μ₁ - μ₀) = {effectSize}, significance level α = {alpha}, and desired power 0.80',
+    chartTitle: 'Curve of the Power Function K(μ)',
+    chartXLabel: 'True Mean (μ)',
+    chartYLabel: 'Power K(μ)',
+    chartLegend: 'Power Function K(μ)',
+    chartFormula: 'Power function K(μ) = 1 - Φ((c - μ) / (σ/√n))'
   },
   dataInputPanel: {
     fileUpload: 'File Upload',

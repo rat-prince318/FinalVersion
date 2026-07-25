@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Box, FormControl, FormLabel, Input, Button, Grid, Text } from '@chakra-ui/react';
 import { generatePairedNormalData } from '../utils/dataGenerators';
 
@@ -7,6 +8,7 @@ interface PairedDataGeneratorProps {
 }
 
 function PairedDataGenerator({ onDataGenerated }: PairedDataGeneratorProps) {
+  const { t } = useTranslation();
   const [sampleSize, setSampleSize] = useState<string>('30');
   const [meanBefore, setMeanBefore] = useState<string>('50');
   const [meanDifference, setMeanDifference] = useState<string>('5');
@@ -23,7 +25,7 @@ function PairedDataGenerator({ onDataGenerated }: PairedDataGeneratorProps) {
 
       if (isNaN(n) || isNaN(muBefore) || isNaN(muDiff) || isNaN(sigma) || isNaN(corr) ||
           n < 1 || n > 10000 || sigma <= 0 || corr < -1 || corr > 1) {
-        throw new Error('Please enter valid parameter values');
+        throw new Error(t('pairedDataGenerator.invalidParams'));
       }
 
       const { before, after } = generatePairedNormalData(n, muBefore, muDiff, sigma, corr);
@@ -41,7 +43,7 @@ function PairedDataGenerator({ onDataGenerated }: PairedDataGeneratorProps) {
       });
 
     } catch (error) {
-        alert(error instanceof Error ? error.message : 'Error during data generation');
+        alert(error instanceof Error ? error.message : t('pairedDataGenerator.generationError'));
       }
   };
 
@@ -49,7 +51,7 @@ function PairedDataGenerator({ onDataGenerated }: PairedDataGeneratorProps) {
     <Box>
       <Grid templateColumns={{ base: '1fr', md: 'repeat(2, 1fr)' }} gap={6} mb={6}>
         <FormControl>
-          <FormLabel fontSize="sm">Sample Size (n)</FormLabel>
+          <FormLabel fontSize="sm">{t('pairedDataGenerator.sampleSize')}</FormLabel>
           <Input
             type="number"
             value={sampleSize}
@@ -60,7 +62,7 @@ function PairedDataGenerator({ onDataGenerated }: PairedDataGeneratorProps) {
         </FormControl>
         
         <FormControl>
-          <FormLabel fontSize="sm">Pre-test Mean (μ₁)</FormLabel>
+          <FormLabel fontSize="sm">{t('pairedDataGenerator.preTestMean')}</FormLabel>
           <Input
             type="number"
             value={meanBefore}
@@ -70,7 +72,7 @@ function PairedDataGenerator({ onDataGenerated }: PairedDataGeneratorProps) {
         </FormControl>
         
         <FormControl>
-          <FormLabel fontSize="sm">Mean Difference (μ₂ - μ₁)</FormLabel>
+          <FormLabel fontSize="sm">{t('pairedDataGenerator.meanDifference')}</FormLabel>
           <Input
             type="number"
             value={meanDifference}
@@ -80,7 +82,7 @@ function PairedDataGenerator({ onDataGenerated }: PairedDataGeneratorProps) {
         </FormControl>
         
         <FormControl>
-          <FormLabel fontSize="sm">Standard Deviation (σ)</FormLabel>
+          <FormLabel fontSize="sm">{t('pairedDataGenerator.standardDeviation')}</FormLabel>
           <Input
             type="number"
             value={stdDev}
@@ -91,7 +93,7 @@ function PairedDataGenerator({ onDataGenerated }: PairedDataGeneratorProps) {
         </FormControl>
         
         <FormControl>
-          <FormLabel fontSize="sm">Correlation Coefficient (r)</FormLabel>
+          <FormLabel fontSize="sm">{t('pairedDataGenerator.correlationCoefficient')}</FormLabel>
           <Input
             type="number"
             value={correlation}
@@ -101,13 +103,13 @@ function PairedDataGenerator({ onDataGenerated }: PairedDataGeneratorProps) {
             max="1"
           />
           <Text fontSize="xs" color="gray.500" mt={1}>
-        It is recommended to use a high positive correlation coefficient (0.6-0.9) to simulate realistic paired data
+        {t('pairedDataGenerator.correlationHint')}
       </Text>
         </FormControl>
       </Grid>
       
       <Button onClick={handleGenerate} colorScheme="green" width="100%">
-        Generate Paired Data
+        {t('pairedDataGenerator.generateButton')}
       </Button>
     </Box>
   );

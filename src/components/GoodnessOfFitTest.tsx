@@ -107,7 +107,7 @@ const GoodnessOfFitTest: React.FC<GoodnessOfFitTestProps> = ({
     {
       type: 'normal',
       name: t('distribution.normal'),
-      description: 'Bell-shaped symmetric distribution',
+      description: t('goodnessOfFit.distributionDescriptions.normal'),
       supportedTests: ['kolmogorov-smirnov', 'chi-square', 'anderson-darling', 'shapiro-wilk', 'jarque-bera'],
       requiresParameterEstimation: true,
       parameterNames: ['mean', 'std'],
@@ -116,7 +116,7 @@ const GoodnessOfFitTest: React.FC<GoodnessOfFitTestProps> = ({
     {
       type: 'uniform',
       name: t('distribution.uniform'),
-      description: 'Constant probability over an interval',
+      description: t('goodnessOfFit.distributionDescriptions.uniform'),
       supportedTests: ['kolmogorov-smirnov', 'chi-square'],
       requiresParameterEstimation: true,
       parameterNames: ['a', 'b'],
@@ -125,7 +125,7 @@ const GoodnessOfFitTest: React.FC<GoodnessOfFitTestProps> = ({
     {
       type: 'exponential',
       name: t('distribution.exponential'),
-      description: 'Memoryless distribution for waiting times',
+      description: t('goodnessOfFit.distributionDescriptions.exponential'),
       supportedTests: ['kolmogorov-smirnov', 'chi-square'],
       requiresParameterEstimation: true,
       parameterNames: ['lambda'],
@@ -134,7 +134,7 @@ const GoodnessOfFitTest: React.FC<GoodnessOfFitTestProps> = ({
     {
       type: 'poisson',
       name: t('distribution.poisson'),
-      description: 'Discrete distribution for counting events',
+      description: t('goodnessOfFit.distributionDescriptions.poisson'),
       supportedTests: ['kolmogorov-smirnov', 'chi-square'],
       requiresParameterEstimation: true,
       parameterNames: ['lambda'],
@@ -143,7 +143,7 @@ const GoodnessOfFitTest: React.FC<GoodnessOfFitTestProps> = ({
     {
       type: 'binomial',
       name: t('distribution.binomial'),
-      description: 'Discrete distribution for number of successes in fixed trials',
+      description: t('goodnessOfFit.distributionDescriptions.binomial'),
       supportedTests: ['kolmogorov-smirnov', 'chi-square'],
       requiresParameterEstimation: true,
       parameterNames: ['n (trials)', 'p (probability)'],
@@ -154,8 +154,8 @@ const GoodnessOfFitTest: React.FC<GoodnessOfFitTestProps> = ({
   const testMethodOptions: TestMethodOption[] = [
     {
       type: 'kolmogorov-smirnov',
-      name: 'Kolmogorov-Smirnov Test',
-      description: 'Non-parametric test comparing empirical and theoretical CDFs',
+      name: t('goodnessOfFit.methodNames.kolmogorovSmirnov'),
+      description: t('goodnessOfFit.methodDescriptions.kolmogorovSmirnov'),
       applicableDistributions: ['normal', 'uniform', 'exponential', 'poisson', 'gamma', 'binomial'],
       assumptions: [
         'Continuous distribution',
@@ -175,8 +175,8 @@ const GoodnessOfFitTest: React.FC<GoodnessOfFitTestProps> = ({
     },
     {
       type: 'chi-square',
-      name: 'Chi-Square Goodness-of-Fit Test',
-      description: 'Test based on comparing observed vs expected frequencies',
+      name: t('goodnessOfFit.methodNames.chiSquare'),
+      description: t('goodnessOfFit.methodDescriptions.chiSquare'),
       applicableDistributions: ['normal', 'uniform', 'exponential', 'poisson', 'gamma', 'binomial'],
       assumptions: [
         'Independent observations',
@@ -196,8 +196,8 @@ const GoodnessOfFitTest: React.FC<GoodnessOfFitTestProps> = ({
     },
     {
       type: 'anderson-darling',
-      name: 'Anderson-Darling Test',
-      description: 'Modified KS test with more weight on tails',
+      name: t('goodnessOfFit.methodNames.andersonDarling'),
+      description: t('goodnessOfFit.methodDescriptions.andersonDarling'),
       applicableDistributions: ['normal'],
       assumptions: [
         'Normal distribution',
@@ -217,8 +217,8 @@ const GoodnessOfFitTest: React.FC<GoodnessOfFitTestProps> = ({
     },
     {
       type: 'jarque-bera',
-      name: 'Jarque-Bera Test',
-      description: 'Test based on skewness and kurtosis',
+      name: t('goodnessOfFit.methodNames.jarqueBera'),
+      description: t('goodnessOfFit.methodDescriptions.jarqueBera'),
       applicableDistributions: ['normal'],
       assumptions: [
         'Independent observations',
@@ -1069,7 +1069,7 @@ const GoodnessOfFitTest: React.FC<GoodnessOfFitTestProps> = ({
                               </Td>
                               <Td>
                                 <Badge colorScheme={result.isReject ? 'red' : 'green'}>
-                                  {result.isReject ? 'Reject H₀' : 'Fail to Reject H₀'}
+                                  {result.isReject ? t('goodnessOfFit.rejectH0Short') : t('goodnessOfFit.failToRejectH0Short')}
                                 </Badge>
                               </Td>
                               <Td>{(result.confidenceLevel * 100).toFixed(1)}%</Td>
@@ -1145,7 +1145,7 @@ const GoodnessOfFitTest: React.FC<GoodnessOfFitTestProps> = ({
                                   </Text>
                                 )}
                                 <Badge colorScheme={testResult.isReject ? 'red' : 'green'}>
-                                  {testResult.isReject ? 'Reject H₀' : 'Fail to Reject H₀'}
+                                  {testResult.isReject ? t('goodnessOfFit.rejectH0Short') : t('goodnessOfFit.failToRejectH0Short')}
                                 </Badge>
                               </Stack>
                             </Box>

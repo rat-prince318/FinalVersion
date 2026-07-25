@@ -107,7 +107,7 @@ function ProportionCI({ dataset = [] }: ProportionCIProps) {
                 <CardBody>
                   <Text fontSize="sm" color="gray.500">{t('confidenceInterval.sampleProportion')}</Text>
                   <Text fontSize="2xl" fontWeight="bold">
-                    {results.proportion !== undefined ? results.proportion.toFixed(4) : 'N/A'}
+                    {results.proportion !== undefined ? results.proportion.toFixed(4) : t('common.notAvailable')}
                   </Text>
                 </CardBody>
               </Card>
@@ -115,7 +115,7 @@ function ProportionCI({ dataset = [] }: ProportionCIProps) {
                 <CardBody>
                   <Text fontSize="sm" color="gray.500">{t('confidenceInterval.standardError')}</Text>
                   <Text fontSize="2xl" fontWeight="bold">
-                    {results.standardError !== undefined ? results.standardError.toFixed(4) : 'N/A'}
+                    {results.standardError !== undefined ? results.standardError.toFixed(4) : t('common.notAvailable')}
                   </Text>
                 </CardBody>
               </Card>
@@ -123,14 +123,14 @@ function ProportionCI({ dataset = [] }: ProportionCIProps) {
                 <CardBody>
                   <Text fontSize="sm" color="gray.500">{t('statistics.marginOfError')}</Text>
                   <Text fontSize="2xl" fontWeight="bold">
-                    {results.marginOfError !== undefined ? results.marginOfError.toFixed(4) : 'N/A'}
+                    {results.marginOfError !== undefined ? results.marginOfError.toFixed(4) : t('common.notAvailable')}
                   </Text>
                 </CardBody>
               </Card>
               <Card>
                 <CardBody>
                   <Text fontSize="sm" color="gray.500">{t('statistics.calculationMethod')}</Text>
-                  <Text fontSize="lg" fontWeight="bold">{results.method || 'N/A'}</Text>
+                  <Text fontSize="lg" fontWeight="bold">{results.method || t('common.notAvailable')}</Text>
                 </CardBody>
               </Card>
             </Grid>
@@ -141,8 +141,8 @@ function ProportionCI({ dataset = [] }: ProportionCIProps) {
               </Text>
               <Text fontWeight="bold" fontSize="lg">
                 [
-                {results.lower !== undefined ? results.lower.toFixed(4) : 'N/A'},
-                {results.upper !== undefined ? results.upper.toFixed(4) : 'N/A'}
+                {results.lower !== undefined ? results.lower.toFixed(4) : t('common.notAvailable')},
+                {results.upper !== undefined ? results.upper.toFixed(4) : t('common.notAvailable')}
                 ]
               </Text>
             </Box>
