@@ -1,9 +1,17 @@
 import { useState, useEffect } from 'react';
-import { Box, Text, Grid, GridItem, Card, CardBody, Select, FormControl, FormLabel, Switch, NumberInput } from '@chakra-ui/react';
+import { Box, Text, Grid, GridItem, Card, CardBody, Select, FormControl, FormLabel, Switch, Input } from '@chakra-ui/react';
 import { useTranslation } from 'react-i18next';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LineChart, Line } from 'recharts';
 import { BasicStatisticsTabProps, BasicStats } from '../types';
-import { generateHistogramData, calculateConfidenceInterval, calculateMean, calculateMedian, calculateMode, calculateVariance, calculateStd, calculateQuartiles } from '../utils/statistics';
+import { generateHistogramData, calculateConfidenceInterval, calculateMean, calculateMedian, calculateMode, calculateVariance, calculateStd, calculateQuartiles, ConfidenceIntervalMethodKey } from '../utils/statistics';
+
+const getConfidenceIntervalMethodLabel = (t: (key: string) => string, methodKey?: ConfidenceIntervalMethodKey) => {
+  if (!methodKey) {
+    return t('common.notAvailable');
+  }
+
+  return t(`confidenceInterval.methodLabels.${methodKey}`);
+};
 
 function BasicStatisticsTab({ dataset, basicStats: propsBasicStats }: BasicStatisticsTabProps & { basicStats?: BasicStats | null }) {
   const { t } = useTranslation();
@@ -24,7 +32,7 @@ function BasicStatisticsTab({ dataset, basicStats: propsBasicStats }: BasicStati
       lower: number; 
       upper: number; 
       marginOfError: number;
-      method: string;
+      methodKey: ConfidenceIntervalMethodKey;
       criticalValue: number;
     };
   } | null>(null);
@@ -33,7 +41,7 @@ function BasicStatisticsTab({ dataset, basicStats: propsBasicStats }: BasicStati
     confidenceLevel: 0.95,
     isNormal: false,
     knownVariance: false,
-    populationVariance: 0
+    populationVariance: ''
   });
   
   const [histogramData, setHistogramData] = useState<{ name: string; value: number }[]>([]);
@@ -56,7 +64,7 @@ function BasicStatisticsTab({ dataset, basicStats: propsBasicStats }: BasicStati
       const confidenceInterval = calculateConfidenceInterval(data, ciOptions.confidenceLevel, {
         isNormal: ciOptions.isNormal,
         knownVariance: ciOptions.knownVariance,
-        populationVariance: ciOptions.populationVariance
+        populationVariance: parseFloat(ciOptions.populationVariance || '0')
       });
       
       const min = sortedData[0];
@@ -91,7 +99,7 @@ function BasicStatisticsTab({ dataset, basicStats: propsBasicStats }: BasicStati
       const confidenceInterval = calculateConfidenceInterval(data, ciOptions.confidenceLevel, {
         isNormal: ciOptions.isNormal,
         knownVariance: ciOptions.knownVariance,
-        populationVariance: ciOptions.populationVariance
+        populationVariance: parseFloat(ciOptions.populationVariance || '0')
       });
       
       const min = sortedData[0];
@@ -183,11 +191,12 @@ function BasicStatisticsTab({ dataset, basicStats: propsBasicStats }: BasicStati
           {ciOptions.knownVariance && (
             <FormControl>
               <FormLabel>{t('confidenceInterval.populationVariance')}</FormLabel>
-              <NumberInput
+              <Input
+                type="number"
                 min={0}
                 step={0.0001}
                 value={ciOptions.populationVariance}
-                onChange={(value) => handleCIOptionChange('populationVariance', parseFloat(value || '0'))}
+                onChange={(e) => handleCIOptionChange('populationVariance', e.target.value)}
               />
             </FormControl>
           )}
@@ -264,7 +273,7 @@ function BasicStatisticsTab({ dataset, basicStats: propsBasicStats }: BasicStati
         <Card>
           <CardBody>
             <Text fontSize="sm" color="gray.500">{t('statistics.calculationMethod')}</Text>
-            <Text fontSize="2xl" fontWeight="bold">{stats.confidenceInterval?.method || t('common.notAvailable')}</Text>
+            <Text fontSize="2xl" fontWeight="bold">{getConfidenceIntervalMethodLabel(t, stats.confidenceInterval?.methodKey)}</Text>
           </CardBody>
         </Card>
         <Card>

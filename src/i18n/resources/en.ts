@@ -130,6 +130,12 @@ export default {
     knownPopulationVariance: 'Known Population Variance',
     continuityCorrection: 'Continuity Correction',
     value: 'Value',
+    methodLabels: {
+      zKnownVariance: 'Z-distribution (known variance)',
+      zUnknownVarianceLargeSample: 'Z-distribution (unknown variance, large sample)',
+      tUnknownVarianceNormalOrSmallSample: 't-distribution (normal or small sample, unknown variance)',
+      zNonNormalLargeSample: 'Z-distribution (non-normal, large sample, unknown variance)'
+    },
     resultInterpretation: 'Result Interpretation',
     statsModeNotImplemented: 'Statistical input mode not yet implemented',
     twoProportionInterpretation1: 'We are {percent}% confident that the difference between the two population proportions lies between [{lower}%, {upper}%].',

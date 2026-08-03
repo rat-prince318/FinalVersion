@@ -1,8 +1,16 @@
 import React, { useState } from 'react';
 import { Box, Text, Grid, Card, CardBody, Select, FormControl, FormLabel, Switch, Input, Button, Alert, AlertIcon, AlertDescription } from '@chakra-ui/react';
 import { useTranslation } from 'react-i18next';
-import { calculateConfidenceInterval, calculateMean } from '../utils/statistics';
+import { calculateConfidenceInterval, calculateMean, ConfidenceIntervalMethodKey } from '../utils/statistics';
 import { BasicStats } from '../types';
+
+const getConfidenceIntervalMethodLabel = (t: (key: string) => string, methodKey?: ConfidenceIntervalMethodKey) => {
+  if (!methodKey) {
+    return t('common.notAvailable');
+  }
+
+  return t(`confidenceInterval.methodLabels.${methodKey}`);
+};
 
 interface OneSampleMeanCIProps {
   dataset?: number[];
@@ -58,7 +66,7 @@ function OneSampleMeanCI({ dataset = [], isGeneratedDataset = false, distributio
       lower: number; 
       upper: number; 
       marginOfError: number;
-      method: string;
+      methodKey: ConfidenceIntervalMethodKey;
       criticalValue: number;
     };
   } | null>(null);
@@ -219,7 +227,7 @@ function OneSampleMeanCI({ dataset = [], isGeneratedDataset = false, distributio
           <Card>
             <CardBody>
               <Text fontSize="sm" color="gray.500">{t('statistics.calculationMethod')}</Text>
-              <Text fontSize="lg" fontWeight="bold">{result.confidenceInterval.method}</Text>
+              <Text fontSize="lg" fontWeight="bold">{getConfidenceIntervalMethodLabel(t, result.confidenceInterval.methodKey)}</Text>
             </CardBody>
           </Card>
           <Card>

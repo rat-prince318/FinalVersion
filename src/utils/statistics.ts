@@ -306,6 +306,12 @@ export const calculateQuartiles = (data: number[]): { q1: number; q3: number; iq
  * @param options.populationVariance Population variance (if known)
  * @returns Object containing confidence interval lower bound, upper bound, margin of error, and method used
  */
+export type ConfidenceIntervalMethodKey =
+  | 'zKnownVariance'
+  | 'zUnknownVarianceLargeSample'
+  | 'tUnknownVarianceNormalOrSmallSample'
+  | 'zNonNormalLargeSample';
+
 export const calculateConfidenceInterval = (data: number[], confidenceLevel: number = 0.95, options: {
   isNormal?: boolean;
   knownVariance?: boolean;
@@ -314,7 +320,7 @@ export const calculateConfidenceInterval = (data: number[], confidenceLevel: num
   lower: number; 
   upper: number; 
   marginOfError: number;
-  method: string;
+  methodKey: ConfidenceIntervalMethodKey;
   criticalValue: number;
 } => {
   if (!data || data.length === 0) {
@@ -341,7 +347,7 @@ export const calculateConfidenceInterval = (data: number[], confidenceLevel: num
   
   // Determine whether to use z-distribution or t-distribution
   let criticalValue: number;
-  let method: string;
+  let methodKey: ConfidenceIntervalMethodKey;
   
   if (knownVariance) {
     // Known variance, use z-distribution
@@ -364,7 +370,7 @@ export const calculateConfidenceInterval = (data: number[], confidenceLevel: num
         const zApprox = Math.sqrt(2) * inverseErrorFunction(2 * (1 - alpha/2) - 1);
         criticalValue = Math.abs(zApprox);
     }
-    method = knownVariance ? 'Z-distribution (known variance)' : 'Z-distribution (unknown variance, large sample)';
+    methodKey = knownVariance ? 'zKnownVariance' : 'zUnknownVarianceLargeSample';
 
   } else {
     // Unknown variance
@@ -373,7 +379,7 @@ export const calculateConfidenceInterval = (data: number[], confidenceLevel: num
 // Using approximate t-critical value table
       const df = n - 1;
       criticalValue = getApproximateTCriticalValue(df, confidenceLevel);
-      method = 't distribution (normal, unknown variance)';
+      methodKey = 'tUnknownVarianceNormalOrSmallSample';
     } else {
       // Non-normal large sample, use z-distribution approximation
       switch (confidenceLevel) {
@@ -391,7 +397,7 @@ export const calculateConfidenceInterval = (data: number[], confidenceLevel: num
           const zApprox = Math.sqrt(2) * inverseErrorFunction(2 * (1 - alpha/2) - 1);
           criticalValue = Math.abs(zApprox);
       }
-      method = 'Z-distribution (non-normal, large sample, unknown variance)';
+      methodKey = 'zNonNormalLargeSample';
 
     }
   }
@@ -403,7 +409,7 @@ export const calculateConfidenceInterval = (data: number[], confidenceLevel: num
   const lower = mean - marginOfError;
   const upper = mean + marginOfError;
   
-  return { lower, upper, marginOfError, method, criticalValue };
+  return { lower, upper, marginOfError, methodKey, criticalValue };
 };
 
 /**

@@ -130,6 +130,12 @@ export default {
     knownPopulationVariance: '已知总体方差',
     continuityCorrection: '连续性校正',
     value: '值',
+    methodLabels: {
+      zKnownVariance: 'Z分布（已知方差）',
+      zUnknownVarianceLargeSample: 'Z分布（未知方差，大样本）',
+      tUnknownVarianceNormalOrSmallSample: 't分布（正态或小样本，未知方差）',
+      zNonNormalLargeSample: 'Z分布（非正态，大样本，未知方差）'
+    },
     resultInterpretation: '结果解释',
     statsModeNotImplemented: '统计输入模式尚未实现',
     twoProportionInterpretation1: '我们有 {percent}% 的置信度认为两个总体比例的差异位于 [{lower}%, {upper}%] 之间。',
