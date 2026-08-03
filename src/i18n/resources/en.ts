@@ -297,6 +297,7 @@ export default {
     estimatedParams: 'Estimated Parameters (from data):',
     performTest: 'Perform Goodness-of-Fit Test',
     performingTest: 'Running test...',
+    testResults: 'Test Results',
     autoTestTitle: 'Automatic Goodness-of-Fit Test',
     autoTestDesc: 'Automatically test all supported distribution types and test methods, and recommend the best-fitting distribution type based on p-value.',
     startAutoTest: 'Start Auto Test',
@@ -343,6 +344,78 @@ export default {
       andersonDarling: 'Gives more weight to tails than K-S test',
       jarqueBera: 'Tests if sample skewness and kurtosis match a normal distribution'
     },
+    methodHelp: {
+      methods: {
+        kolmogorovSmirnov: {
+          assumptions: [
+            'Continuous distribution',
+            'Independent observations',
+            'No estimated parameters from data (for exact test)'
+          ],
+          strengths: [
+            'Distribution-free when parameters are known',
+            'Sensitive to differences in distribution shape',
+            'Works with small sample sizes'
+          ],
+          limitations: [
+            'Less powerful for discrete distributions',
+            'Requires known parameters for exact p-values',
+            'Sensitive to parameter estimation'
+          ]
+        },
+        chiSquare: {
+          assumptions: [
+            'Independent observations',
+            'Expected frequency of at least 5 in each bin',
+            'Categorical or binned continuous data'
+          ],
+          strengths: [
+            'Works with any distribution',
+            'Can handle discrete and continuous data',
+            'Well-established theory'
+          ],
+          limitations: [
+            'Requires binning for continuous data',
+            'Sensitive to bin selection',
+            'Less powerful than the KS test for some distributions'
+          ]
+        },
+        andersonDarling: {
+          assumptions: [
+            'Normal distribution',
+            'Continuous distribution',
+            'Independent observations'
+          ],
+          strengths: [
+            'More powerful than the KS test for normal distribution',
+            'Better sensitivity in tail regions',
+            'Accounts for parameter estimation'
+          ],
+          limitations: [
+            'Primarily for normal distribution',
+            'More complex calculation',
+            'Less intuitive interpretation'
+          ]
+        },
+        jarqueBera: {
+          assumptions: [
+            'Independent observations',
+            'Sufficient sample size (n > 20)',
+            'Symmetric distribution'
+          ],
+          strengths: [
+            'Simple calculation',
+            'Based on intuitive measures',
+            'Good for large samples'
+          ],
+          limitations: [
+            'Only tests for normality',
+            'Less powerful for small samples',
+            'Sensitive to outliers'
+          ]
+        }
+      }
+    },
     actualDistributionVerification: 'Actual Distribution Verification',
     test: 'Test: ',
     distributionLabel: 'Distribution: ',
@@ -354,6 +427,8 @@ export default {
     criticalValueLabel: 'Critical Value: ',
     rejectH0Short: 'Reject H0',
     failToRejectH0Short: 'Fail to Reject H0',
+    rejectConclusion: 'Reject the null hypothesis',
+    failConclusion: 'Fail to reject the null hypothesis',
     conclusion: 'Conclusion: {{conclusion}}',
     interpretation: 'Interpretation: {{interpretation}}',
     rejectInterpretation: 'The data does NOT follow the specified distribution',
@@ -369,6 +444,15 @@ export default {
     limitations: 'Limitations',
     pdf: 'Probability Density Function:',
     parameters: 'Parameters:',
+    parameterLabels: {
+      mean: 'Mean',
+      std: 'Standard Deviation (σ)',
+      lowerBound: 'Lower Bound (a)',
+      upperBound: 'Upper Bound (b)',
+      lambda: 'Rate (λ)',
+      trials: 'Number of Trials (n)',
+      probability: 'Success Probability (p)'
+    },
     autoTestError: '自动测试执行失败',
     errors: {
       noDataset: 'Dataset is required',

@@ -102,6 +102,49 @@ const GoodnessOfFitTest: React.FC<GoodnessOfFitTestProps> = ({
     pValue: number;
   } | null>(null);
 
+  const getDistributionDisplayName = (distributionType?: string) => {
+    switch (distributionType) {
+      case 'normal':
+        return t('distribution.normal');
+      case 'uniform':
+        return t('distribution.uniform');
+      case 'exponential':
+        return t('distribution.exponential');
+      case 'poisson':
+        return t('distribution.poisson');
+      case 'binomial':
+        return t('distribution.binomial');
+      default:
+        return distributionType || '';
+    }
+  };
+
+  const getParameterDisplayName = (paramName: string) => {
+    switch (paramName) {
+      case 'mean':
+        return t('goodnessOfFit.parameterLabels.mean');
+      case 'std':
+        return t('goodnessOfFit.parameterLabels.std');
+      case 'a':
+        return t('goodnessOfFit.parameterLabels.lowerBound');
+      case 'b':
+        return t('goodnessOfFit.parameterLabels.upperBound');
+      case 'lambda':
+        return t('goodnessOfFit.parameterLabels.lambda');
+      case 'n (trials)':
+        return t('goodnessOfFit.parameterLabels.trials');
+      case 'p (probability)':
+        return t('goodnessOfFit.parameterLabels.probability');
+      default:
+        return paramName;
+    }
+  };
+
+  const getTranslatedList = (key: string): string[] => {
+    const value = t(key, { returnObjects: true });
+    return Array.isArray(value) ? (value as string[]) : [];
+  };
+
   // Test configuration options
   const distributionOptions: TestDistributionOption[] = [
     {
@@ -157,84 +200,36 @@ const GoodnessOfFitTest: React.FC<GoodnessOfFitTestProps> = ({
       name: t('goodnessOfFit.methodNames.kolmogorovSmirnov'),
       description: t('goodnessOfFit.methodDescriptions.kolmogorovSmirnov'),
       applicableDistributions: ['normal', 'uniform', 'exponential', 'poisson', 'gamma', 'binomial'],
-      assumptions: [
-        'Continuous distribution',
-        'Independent observations',
-        'No estimated parameters from data (for exact test)',
-      ],
-      strengths: [
-        'Distribution-free (when parameters are known)',
-        'Sensitive to differences in distribution shape',
-        'Works with small sample sizes',
-      ],
-      limitations: [
-        'Less powerful for discrete distributions',
-        'Requires known parameters for exact p-values',
-        'Sensitive to parameter estimation',
-      ],
+      assumptions: getTranslatedList('goodnessOfFit.methodHelp.methods.kolmogorovSmirnov.assumptions'),
+      strengths: getTranslatedList('goodnessOfFit.methodHelp.methods.kolmogorovSmirnov.strengths'),
+      limitations: getTranslatedList('goodnessOfFit.methodHelp.methods.kolmogorovSmirnov.limitations'),
     },
     {
       type: 'chi-square',
       name: t('goodnessOfFit.methodNames.chiSquare'),
       description: t('goodnessOfFit.methodDescriptions.chiSquare'),
       applicableDistributions: ['normal', 'uniform', 'exponential', 'poisson', 'gamma', 'binomial'],
-      assumptions: [
-        'Independent observations',
-        'Expected frequency ≥ 5 in each bin',
-        'Categorical or binned continuous data',
-      ],
-      strengths: [
-        'Works with any distribution',
-        'Can handle discrete and continuous data',
-        'Well-established theory',
-      ],
-      limitations: [
-        'Requires binning for continuous data',
-        'Sensitive to bin selection',
-        'Less powerful than KS test for some distributions',
-      ],
+      assumptions: getTranslatedList('goodnessOfFit.methodHelp.methods.chiSquare.assumptions'),
+      strengths: getTranslatedList('goodnessOfFit.methodHelp.methods.chiSquare.strengths'),
+      limitations: getTranslatedList('goodnessOfFit.methodHelp.methods.chiSquare.limitations'),
     },
     {
       type: 'anderson-darling',
       name: t('goodnessOfFit.methodNames.andersonDarling'),
       description: t('goodnessOfFit.methodDescriptions.andersonDarling'),
       applicableDistributions: ['normal'],
-      assumptions: [
-        'Normal distribution',
-        'Continuous distribution',
-        'Independent observations',
-      ],
-      strengths: [
-        'More powerful than KS for normal distribution',
-        'Better sensitivity in tail regions',
-        'Accounts for parameter estimation',
-      ],
-      limitations: [
-        'Primarily for normal distribution',
-        'More complex calculation',
-        'Less intuitive interpretation',
-      ],
+      assumptions: getTranslatedList('goodnessOfFit.methodHelp.methods.andersonDarling.assumptions'),
+      strengths: getTranslatedList('goodnessOfFit.methodHelp.methods.andersonDarling.strengths'),
+      limitations: getTranslatedList('goodnessOfFit.methodHelp.methods.andersonDarling.limitations'),
     },
     {
       type: 'jarque-bera',
       name: t('goodnessOfFit.methodNames.jarqueBera'),
       description: t('goodnessOfFit.methodDescriptions.jarqueBera'),
       applicableDistributions: ['normal'],
-      assumptions: [
-        'Independent observations',
-        'Sufficient sample size (n > 20)',
-        'Symmetric distribution',
-      ],
-      strengths: [
-        'Simple calculation',
-        'Based on intuitive measures',
-        'Good for large samples',
-      ],
-      limitations: [
-        'Only tests for normality',
-        'Less powerful for small samples',
-        'Sensitive to outliers',
-      ],
+      assumptions: getTranslatedList('goodnessOfFit.methodHelp.methods.jarqueBera.assumptions'),
+      strengths: getTranslatedList('goodnessOfFit.methodHelp.methods.jarqueBera.strengths'),
+      limitations: getTranslatedList('goodnessOfFit.methodHelp.methods.jarqueBera.limitations'),
     },
   ];
 
@@ -431,14 +426,14 @@ const GoodnessOfFitTest: React.FC<GoodnessOfFitTestProps> = ({
   const getInterpretation = (result: GoFTestResult) => {
     if (result.isReject) {
       return {
-        conclusion: 'Reject the null hypothesis',
-        interpretation: 'The data does NOT follow the specified distribution',
+        conclusion: t('goodnessOfFit.rejectConclusion'),
+        interpretation: t('goodnessOfFit.rejectInterpretation'),
         color: 'red',
       };
     } else {
       return {
-        conclusion: 'Fail to reject the null hypothesis',
-        interpretation: 'The data is consistent with the specified distribution',
+        conclusion: t('goodnessOfFit.failConclusion'),
+        interpretation: t('goodnessOfFit.failInterpretation'),
         color: 'green',
       };
     }
@@ -769,9 +764,9 @@ const GoodnessOfFitTest: React.FC<GoodnessOfFitTestProps> = ({
                         value={significanceLevel} 
                         onChange={(e) => setSignificanceLevel(e.target.value)}
                       >
-                        <option value="0.01">0.01 (99% {t('statistics.confidenceLevel')})</option>
-                        <option value="0.05">0.05 (95% {t('statistics.confidenceLevel')})</option>
-                        <option value="0.10">0.10 (90% {t('statistics.confidenceLevel')})</option>
+                        <option value="0.01">{t('powerFunction.confidenceLevel99')}</option>
+                        <option value="0.05">{t('powerFunction.confidenceLevel95')}</option>
+                        <option value="0.10">{t('powerFunction.confidenceLevel90')}</option>
                       </Select>
                     </FormControl>
 
@@ -824,14 +819,14 @@ const GoodnessOfFitTest: React.FC<GoodnessOfFitTestProps> = ({
                             {getCurrentDistribution()?.parameterNames.map(paramName => (
                               <FormControl key={paramName}>
                                 <FormLabel textTransform="capitalize">
-                                  {paramName === 'std' ? t('statistics.standardDeviation') : paramName}
+                                  {getParameterDisplayName(paramName)}
                                 </FormLabel>
                                 <Input
                                   type="number"
                                   step="any"
                                   value={customParams[paramName] || ''}
                                   onChange={(e) => handleCustomParamChange(paramName, e.target.value)}
-                                  placeholder={`${t('common.enter')} ${paramName}`}
+                                  placeholder={getParameterDisplayName(paramName)}
                                 />
                               </FormControl>
                             ))}
@@ -847,7 +842,7 @@ const GoodnessOfFitTest: React.FC<GoodnessOfFitTestProps> = ({
                           <Stack spacing={1}>
                             {Object.entries(estimatedParams).map(([param, value]) => (
                               <Text key={param} fontSize="sm">
-                                {param === 'std' ? t('statistics.standardDeviation') : param}: {value.toFixed(4)}
+                                {getParameterDisplayName(param)}: {value.toFixed(4)}
                               </Text>
                             ))}
                           </Stack>
@@ -897,9 +892,9 @@ const GoodnessOfFitTest: React.FC<GoodnessOfFitTestProps> = ({
                         value={significanceLevel} 
                         onChange={(e) => setSignificanceLevel(e.target.value)}
                       >
-                        <option value="0.01">0.01 (99% {t('statistics.confidenceLevel')})</option>
-                        <option value="0.05">0.05 (95% {t('statistics.confidenceLevel')})</option>
-                        <option value="0.10">0.10 (90% {t('statistics.confidenceLevel')})</option>
+                        <option value="0.01">{t('powerFunction.confidenceLevel99')}</option>
+                        <option value="0.05">{t('powerFunction.confidenceLevel95')}</option>
+                        <option value="0.10">{t('powerFunction.confidenceLevel90')}</option>
                       </Select>
                     </FormControl>
 
@@ -962,26 +957,26 @@ const GoodnessOfFitTest: React.FC<GoodnessOfFitTestProps> = ({
                     {distributionInfo && actualDistributionAccuracy && (
                       <Box mt={4} p={4} bgColor="blue.50" borderRadius={4} border="1px" borderColor="blue.200">
                         <Text fontWeight="bold" color="blue.700" mb={2}>
-                          📊 Actual Distribution Verification
+                          {t('goodnessOfFit.actualDistribution')}
                         </Text>
                         <Text fontSize="sm" fontWeight="semibold" mb={2}>
-                          Actual generated data distribution: {distributionInfo.name}
+                          {t('goodnessOfFit.actualGenerated', { name: getDistributionDisplayName(distributionInfo.type) })}
                         </Text>
                         <Grid templateColumns={{ base: '1fr', md: 'repeat(3, 1fr)' }} gap={4}>
                           <Box>
-                            <Text fontSize="sm" fontWeight="bold">Accuracy assessment:</Text>
+                            <Text fontSize="sm" fontWeight="bold">{t('goodnessOfFit.accuracyAssessment')}</Text>
                             <Text fontSize="sm" color={actualDistributionAccuracy.isRecommended ? "green.600" : "orange.600"}>
-                              {actualDistributionAccuracy.isRecommended ? "✅ Algorithm correctly recommended" : "⚠️ Algorithm recommended incorrectly"}
+                              {actualDistributionAccuracy.isRecommended ? t('goodnessOfFit.correctlyRecommended') : t('goodnessOfFit.incorrectlyRecommended')}
                             </Text>
                           </Box>
                           <Box>
-                            <Text fontSize="sm" fontWeight="bold">Actual distribution rank:</Text>
+                            <Text fontSize="sm" fontWeight="bold">{t('goodnessOfFit.actualRank')}</Text>
                             <Text fontSize="sm">
-                              Rank {actualDistributionAccuracy.rank}
+                              {t('goodnessOfFit.rank')} {actualDistributionAccuracy.rank}
                             </Text>
                           </Box>
                           <Box>
-                            <Text fontSize="sm" fontWeight="bold">Actual distribution p-value:</Text>
+                            <Text fontSize="sm" fontWeight="bold">{t('goodnessOfFit.actualPValue')}</Text>
                             <Text fontSize="sm">
                               {actualDistributionAccuracy.pValue.toFixed(4)}
                             </Text>
@@ -991,14 +986,14 @@ const GoodnessOfFitTest: React.FC<GoodnessOfFitTestProps> = ({
                           <Alert status="success" mt={3} size="sm">
                             <AlertIcon />
                             <Text fontSize="sm">
-                              🎉 Great! The algorithm successfully identified the correct data distribution type.
+                              {t('goodnessOfFit.correctAlert')}
                             </Text>
                           </Alert>
                         ) : (
                           <Alert status="warning" mt={3} size="sm">
                             <AlertIcon />
                             <Text fontSize="sm">
-                              ⚠️ The algorithm recommended a different distribution type. This may be due to insufficient sample size, distribution parameter estimation errors, or other statistical factors.
+                              {t('goodnessOfFit.incorrectAlert')}
                             </Text>
                           </Alert>
                         )}
@@ -1009,7 +1004,7 @@ const GoodnessOfFitTest: React.FC<GoodnessOfFitTestProps> = ({
                       <Alert status="info" mt={4} size="sm">
                         <AlertIcon />
                         <Text fontSize="sm">
-                          💡 This is manually entered or uploaded data, and the algorithm recommends the best-fitting distribution type based on statistical test results.
+                          {t('goodnessOfFit.manualDataAlert')}
                         </Text>
                       </Alert>
                     )}
@@ -1021,18 +1016,18 @@ const GoodnessOfFitTest: React.FC<GoodnessOfFitTestProps> = ({
               {autoTestResults.length > 0 && (
                 <Card>
                   <CardBody>
-                    <Text fontSize="lg" fontWeight="bold" mb={4}>Detailed Test Results</Text>
+                    <Text fontSize="lg" fontWeight="bold" mb={4}>{t('goodnessOfFit.detailedResults')}</Text>
                     <Box overflowX="auto">
                       <Table variant="simple" size="sm">
                         <Thead>
                           <Tr>
-                            <Th>Rank</Th>
-                            <Th>Distribution Type</Th>
-                            <Th>Test Method</Th>
-                            <Th>Test Statistic</Th>
-                            <Th>p-value</Th>
-                            <Th>Result</Th>
-                            <Th>Confidence Level</Th>
+                            <Th>{t('goodnessOfFit.rank')}</Th>
+                            <Th>{t('goodnessOfFit.distributionType')}</Th>
+                            <Th>{t('goodnessOfFit.testMethod')}</Th>
+                            <Th>{t('goodnessOfFit.testStatistic')}</Th>
+                            <Th>{t('goodnessOfFit.pValueLabel')}</Th>
+                            <Th>{t('goodnessOfFit.result')}</Th>
+                            <Th>{t('goodnessOfFit.confidenceLevel')}</Th>
                           </Tr>
                         </Thead>
                         <Tbody>
@@ -1054,7 +1049,7 @@ const GoodnessOfFitTest: React.FC<GoodnessOfFitTestProps> = ({
                                   {result.distributionName}
                                   {result.isActualDistribution && (
                                     <Badge ml={2} colorScheme="blue" size="sm">
-                                      Actual Distribution
+                                      {t('goodnessOfFit.actualDistribution')}
                                     </Badge>
                                   )}
                                 </Text>
@@ -1082,7 +1077,7 @@ const GoodnessOfFitTest: React.FC<GoodnessOfFitTestProps> = ({
                     <Alert status="info" mt={4}>
                       <AlertIcon />
                       <Text fontSize="sm">
-                        <strong>Note:</strong> A larger p-value indicates that the data better fits the distribution. The result ranked first is the most recommended distribution type.
+                        {t('goodnessOfFit.note')}
                       </Text>
                     </Alert>
                   </CardBody>
@@ -1098,7 +1093,7 @@ const GoodnessOfFitTest: React.FC<GoodnessOfFitTestProps> = ({
               {testResult && (
                 <Card>
                   <CardBody>
-                    <Text fontSize="lg" fontWeight="bold" mb={4}>Test Results</Text>
+                    <Text fontSize="lg" fontWeight="bold" mb={4}>{t('goodnessOfFit.testResults')}</Text>
                     
                     {(() => {
                       const interpretation = getInterpretation(testResult);
@@ -1108,40 +1103,40 @@ const GoodnessOfFitTest: React.FC<GoodnessOfFitTestProps> = ({
                           {/* Conclusion */}
                           <Box p={3} bgColor={`${interpretation.color}.50`} borderRadius={4}>
                             <Text fontWeight="bold" color={`${interpretation.color}.700`}>
-                              Conclusion: {interpretation.conclusion}
+                              {t('goodnessOfFit.conclusion', { conclusion: interpretation.conclusion })}
                             </Text>
                             <Text fontSize="sm" color={`${interpretation.color}.600`}>
-                              {interpretation.interpretation}
+                              {t('goodnessOfFit.interpretation', { interpretation: interpretation.interpretation })}
                             </Text>
                           </Box>
 
                           {/* Test Details */}
                           <Grid templateColumns={{ base: '1fr', md: 'repeat(2, 1fr)' }} gap={4}>
                             <Box>
-                              <Text fontWeight="bold">Test Information:</Text>
+                              <Text fontWeight="bold">{t('goodnessOfFit.testInfo')}</Text>
                               <Stack spacing={1}>
-                                <Text fontSize="sm">Test: {testMethodOptions.find(t => t.type === testResult.testType)?.name}</Text>
-                                <Text fontSize="sm">Distribution: {testResult.distributionType}</Text>
-                                <Text fontSize="sm">Sample Size: {testResult.sampleSize}</Text>
-                                <Text fontSize="sm">Significance Level: {testResult.significanceLevel}</Text>
+                                <Text fontSize="sm">{t('goodnessOfFit.test')} {testMethodOptions.find(t => t.type === testResult.testType)?.name}</Text>
+                                <Text fontSize="sm">{t('goodnessOfFit.distributionLabel')} {getDistributionDisplayName(testResult.distributionType)}</Text>
+                                <Text fontSize="sm">{t('goodnessOfFit.sampleSizeLabel')} {testResult.sampleSize}</Text>
+                                <Text fontSize="sm">{t('goodnessOfFit.significanceLevelLabel')} {testResult.significanceLevel}</Text>
                                 {testResult.degreesOfFreedom && (
-                                  <Text fontSize="sm">Degrees of Freedom: {testResult.degreesOfFreedom}</Text>
+                                  <Text fontSize="sm">{t('goodnessOfFit.degreesOfFreedomLabel')} {testResult.degreesOfFreedom}</Text>
                                 )}
                               </Stack>
                             </Box>
 
                             <Box>
-                              <Text fontWeight="bold">Test Statistics:</Text>
+                              <Text fontWeight="bold">{t('goodnessOfFit.testStatistics')}</Text>
                               <Stack spacing={1}>
                                 <Text fontSize="sm">
-                                  Test Statistic: {testResult.statistic.toFixed(4)}
+                                  {t('goodnessOfFit.testStatisticLabel')} {testResult.statistic.toFixed(4)}
                                 </Text>
                                 <Text fontSize="sm">
-                                  P-value: {testResult.pValue.toFixed(4)}
+                                  {t('goodnessOfFit.pValueLabel')} {testResult.pValue.toFixed(4)}
                                 </Text>
                                 {testResult.criticalValue && (
                                   <Text fontSize="sm">
-                                    Critical Value: {testResult.criticalValue.toFixed(4)}
+                                    {t('goodnessOfFit.criticalValueLabel')} {testResult.criticalValue.toFixed(4)}
                                   </Text>
                                 )}
                                 <Badge colorScheme={testResult.isReject ? 'red' : 'green'}>
@@ -1161,7 +1156,7 @@ const GoodnessOfFitTest: React.FC<GoodnessOfFitTestProps> = ({
               {histogramData.length > 0 && (
                 <Card>
                   <CardBody>
-                    <Text fontSize="lg" fontWeight="bold" mb={4}>Data Distribution</Text>
+                    <Text fontSize="lg" fontWeight="bold" mb={4}>{t('goodnessOfFit.dataDistribution')}</Text>
                     <Box height="300px">
                       <ResponsiveContainer width="100%" height="100%">
                         <BarChart data={histogramData}>
@@ -1187,7 +1182,7 @@ const GoodnessOfFitTest: React.FC<GoodnessOfFitTestProps> = ({
               {distributionType === 'normal' && qqPlotData.length > 0 && (
                 <QQPlot 
                   qqData={qqPlotData}
-                  title={`QQ Plot - ${getCurrentDistribution()?.name || 'Normal Distribution'}`}
+                  title={t('goodnessOfFit.qqPlotTitle', { distribution: getDistributionDisplayName(getCurrentDistribution()?.type || distributionType) })}
                 />
               )}
             </VStack>
@@ -1209,7 +1204,7 @@ const GoodnessOfFitTest: React.FC<GoodnessOfFitTestProps> = ({
                     <AccordionItem>
                       <AccordionButton>
                         <Box flex="1" textAlign="left">
-                          <Text fontWeight="bold">Assumptions</Text>
+                          <Text fontWeight="bold">{t('goodnessOfFit.assumptions')}</Text>
                         </Box>
                         <AccordionIcon />
                       </AccordionButton>
@@ -1225,7 +1220,7 @@ const GoodnessOfFitTest: React.FC<GoodnessOfFitTestProps> = ({
                     <AccordionItem>
                       <AccordionButton>
                         <Box flex="1" textAlign="left">
-                          <Text fontWeight="bold">Strengths</Text>
+                          <Text fontWeight="bold">{t('goodnessOfFit.strengths')}</Text>
                         </Box>
                         <AccordionIcon />
                       </AccordionButton>
@@ -1241,7 +1236,7 @@ const GoodnessOfFitTest: React.FC<GoodnessOfFitTestProps> = ({
                     <AccordionItem>
                       <AccordionButton>
                         <Box flex="1" textAlign="left">
-                          <Text fontWeight="bold">Limitations</Text>
+                          <Text fontWeight="bold">{t('goodnessOfFit.limitations')}</Text>
                         </Box>
                         <AccordionIcon />
                       </AccordionButton>
@@ -1268,18 +1263,18 @@ const GoodnessOfFitTest: React.FC<GoodnessOfFitTestProps> = ({
                   
                   {getCurrentDistribution()?.formula && (
                     <Box p={3} bgColor="gray.50" borderRadius={4} mb={4}>
-                      <Text fontWeight="bold" fontSize="sm">Probability Density Function:</Text>
+                      <Text fontWeight="bold" fontSize="sm">{t('goodnessOfFit.pdf')}</Text>
                       <Text fontFamily="monospace" fontSize="sm">
                         {getCurrentDistribution()?.formula}
                       </Text>
                     </Box>
                   )}
 
-                  <Text fontWeight="bold" mb={2}>Parameters:</Text>
+                  <Text fontWeight="bold" mb={2}>{t('goodnessOfFit.parameters')}</Text>
                   <Stack spacing={1}>
                     {getCurrentDistribution()?.parameterNames.map((param, index) => (
                       <Text key={index} fontSize="sm">
-                        • {param === 'std' ? 'Standard Deviation (σ)' : param}
+                        • {getParameterDisplayName(param)}
                       </Text>
                     ))}
                   </Stack>

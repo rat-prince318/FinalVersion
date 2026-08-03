@@ -297,6 +297,7 @@ export default {
     estimatedParams: '估计参数（来自数据）:',
     performTest: '执行拟合优度检验',
     performingTest: '正在执行检验...',
+    testResults: '检验结果',
     autoTestTitle: '自动拟合优度检验',
     autoTestDesc: '自动测试所有支持的分布类型和检验方法，并根据p值推荐最佳拟合的分布类型。',
     startAutoTest: '开始自动检验',
@@ -343,6 +344,78 @@ export default {
       andersonDarling: '相比K-S检验更加注重尾部差异',
       jarqueBera: '检验样本偏度和峰度是否匹配正态分布'
     },
+    methodHelp: {
+      methods: {
+        kolmogorovSmirnov: {
+          assumptions: [
+            '连续分布',
+            '独立观测值',
+            '未从数据中估计参数（用于精确检验）'
+          ],
+          strengths: [
+            '在参数已知时不依赖分布形式',
+            '对分布形状差异敏感',
+            '适用于较小样本量'
+          ],
+          limitations: [
+            '对离散分布效能较低',
+            '精确 p 值需要已知参数',
+            '对参数估计较敏感'
+          ]
+        },
+        chiSquare: {
+          assumptions: [
+            '独立观测值',
+            '每个区间的期望频数至少为 5',
+            '类别型或分组后的连续数据'
+          ],
+          strengths: [
+            '适用于任何分布',
+            '可处理离散和连续数据',
+            '理论成熟'
+          ],
+          limitations: [
+            '连续数据需要分箱',
+            '对分箱选择敏感',
+            '对某些分布的效能低于 K-S 检验'
+          ]
+        },
+        andersonDarling: {
+          assumptions: [
+            '正态分布',
+            '连续分布',
+            '独立观测值'
+          ],
+          strengths: [
+            '对正态分布的检验效能高于 K-S 检验',
+            '对尾部区域更敏感',
+            '考虑了参数估计'
+          ],
+          limitations: [
+            '主要用于正态分布',
+            '计算更复杂',
+            '解释不够直观'
+          ]
+        },
+        jarqueBera: {
+          assumptions: [
+            '独立观测值',
+            '样本量足够大（n > 20）',
+            '对称分布'
+          ],
+          strengths: [
+            '计算简单',
+            '基于直观指标',
+            '适合大样本'
+          ],
+          limitations: [
+            '仅检验正态性',
+            '对小样本效能较低',
+            '对异常值敏感'
+          ]
+        }
+      }
+    },
     actualDistributionVerification: '实际分布验证',
     test: '检验方法：',
     distributionLabel: '分布：',
@@ -354,6 +427,8 @@ export default {
     criticalValueLabel: '临界值：',
     rejectH0Short: '拒绝 H0',
     failToRejectH0Short: '不拒绝 H0',
+    rejectConclusion: '拒绝原假设',
+    failConclusion: '不拒绝原假设',
     conclusion: '结论: {{conclusion}}',
     interpretation: '解释: {{interpretation}}',
     rejectInterpretation: '数据不符合指定分布',
@@ -369,6 +444,15 @@ export default {
     limitations: '局限性',
     pdf: '概率密度函数:',
     parameters: '参数:',
+    parameterLabels: {
+      mean: '均值',
+      std: '标准差 (σ)',
+      lowerBound: '下界 (a)',
+      upperBound: '上界 (b)',
+      lambda: '速率 (λ)',
+      trials: '试验次数 (n)',
+      probability: '成功概率 (p)'
+    },
     autoTestError: '自动测试执行失败',
     errors: {
       noDataset: '数据集是必需的',
